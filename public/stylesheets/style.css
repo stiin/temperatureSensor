@@ -1,0 +1,262 @@
+html, body {
+  background: url(/images/06.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height: 100vh;
+  overflow: auto;
+
+
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+
+}
+/*
+* {
+  box-sizing: border-box;
+}*/
+
+a {
+  color: #00B7FF;
+}
+
+p {
+  font: 20px "Raleway", Helvetica, Arial, sans-serif;
+  color: white;
+}
+
+hr {
+  border-color: #b2b2b2;
+/*  border-style: solid none;
+  border-width: 1px 0;*/
+
+  margin: 10px 0px 20px 0px;
+
+}
+
+.mobile .tempBoard {
+  width: 80vw;
+}
+
+.noMobile .tempBoard {
+  width: 350px;
+}
+
+.tempBoard {
+/*
+  background: #4da8c7;
+*/
+  background: rgba(77,168,199,0.8);
+  margin: 70px auto 0 auto;
+  border-radius: 10px;
+  float: none;
+}
+
+.navbar.navbar-inverse {
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 0 !important;
+  -moz-border-radius: 0 !important;
+}
+
+.header {
+  padding: 0px 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+/*
+  background-color: #4da8c7;
+*/
+  border-radius: 15px 15px 0 0;
+  border-bottom: solid 2px floralwhite;
+
+}
+
+.footer {
+  padding: 0px 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+/*
+  background-color: #4da8c7;
+*/
+  border-radius: 0 0 15px 15px;
+  border-top: solid 2px floralwhite;
+}
+
+.dispTempData {
+  padding: 10px 10px 10px 10px;
+  border-bottom: solid 1px floralwhite;
+}
+
+.dispTimeData {
+  padding: 10px 10px 10px 10px;
+}
+
+.tempText {
+  font: 24px "Raleway", Helvetica, Arial, sans-serif;
+  color: floralwhite;
+  flex-grow: 1;
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  letter-spacing: 2px;
+  text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.3), 0 3px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tempData {
+  font: 32px "Raleway", Helvetica, Arial, sans-serif;
+  color: floralwhite;
+  flex-grow: 1;
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.3), 0 3px 4px rgba(0, 0, 0, 0.2);
+}
+
+.timeText {
+  font: 20px "Raleway", Helvetica, Arial, sans-serif;
+  color: floralwhite;
+  flex-grow: 1;
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  letter-spacing: 2px;
+  text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.3), 0 3px 4px rgba(0, 0, 0, 0.2);
+}
+
+.timeData {
+  font: 20px "Raleway", Helvetica, Arial, sans-serif;
+  color: floralwhite;
+  flex-grow: 1;
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  text-shadow: 0 -1px 1px rgba(255, 255, 255, 0.3), 0 3px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mobile #settingsPageOutline {
+  width: 90vw;
+}
+
+.noMobile #settingsPageOutline {
+  max-width: 800px;
+  min-width: 300px;
+  width: 90vw;
+
+}
+
+#settingsPageOutline {
+  position: relative;
+  background: rgba(255, 255, 255, 0.5);
+  margin: 70px auto 70px auto;
+  float: none;
+}
+
+#settingsOutline {
+
+  padding: 45px 15px 20px 15px;
+/*  margin: 70px auto 0 auto;
+  float: none;*/
+}
+
+.settingsTitle {
+  letter-spacing: 2px;
+  color: #b2b2b2;
+  display: inline-block;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+#settingsForm {
+
+  padding: 20px 0px 0px 0px;
+  /*  margin: 70px auto 0 auto;
+    float: none;*/
+}
+
+#settingsInfo {
+  letter-spacing: 2px;
+  color: #404040;
+  font-size: 16px;
+/*  display: inline-block;
+  position: absolute;
+  top: 20px;
+  left: 20px;*/
+}
+
+#settingsInfoDetails {
+  letter-spacing: 2px;
+  color: #404040;
+  /*  display: inline-block;
+    position: absolute;
+    top: 20px;
+    left: 20px;*/
+}
+
+@media (min-width: 700px) {
+  #settingsHelpImage {
+    height: 130px;
+    width: 600px;
+  }
+}
+
+@media (max-width: 700px) {
+  #settingsHelpImage {
+    height: 108px;
+    width: 500px;
+  }
+}
+
+@media (max-width: 600px) {
+  #settingsHelpImage {
+    height: 97px;
+    width: 450px;
+  }
+}
+
+@media (max-width: 520px) {
+  #settingsHelpImage {
+    height: 86px;
+    width: 400px;
+  }
+}
+
+@media (max-width: 470px) {
+  #settingsHelpImage {
+    height: 65px;
+    width: 300px;
+  }
+}
+
+@media (max-width: 350px) {
+  #settingsHelpImage {
+    height: 43px;
+    width: 200px;
+  }
+}
+
+
+.popover{
+
+  max-width: 100%; !important
+
+
+
+  /*
+    width:100%;
+  */
+
+/*Max Width of the popover (depending on the container!)*//*
+
+
+/*
+  max-width: 600px;
+*/
+
+/*
+  width: auto;
+*/
+
+}
