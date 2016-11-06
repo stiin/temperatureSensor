@@ -81,17 +81,15 @@ function checkFormInputInteger(intInputField, inputFieldSwitch, results, field) 
 
     // If temp switch is ON but input invalid - throw error message
     if (inputFieldSwitch) {
-      console.log('A temperature (integer) between ' +  minSensorMeasurableTemp + ' °C and ' + maxSensorMeasurableTemp + ' °C needs to be specified.');
+      console.log('A temperature between ' +  minSensorMeasurableTemp + ' °C and ' + maxSensorMeasurableTemp + ' °C needs to be specified.');
       console.log(results.errors);
-      results.errors[field] = 'A temperature (integer) between ' +  minSensorMeasurableTemp + ' °C and ' + maxSensorMeasurableTemp + ' °C needs to be specified.';
+      results.errors[field] = 'A temperature between ' +  minSensorMeasurableTemp + ' °C and ' + maxSensorMeasurableTemp + ' °C needs to be specified.';
     }
     // If the switch was on: the value will not be saved and there is no problem to return null
     return null;
   }
   return parseInt(intInputField);
 }
-
-
 
 // Save settings in db
 router.post('/api/updateSettings', function(req, res) {
@@ -113,52 +111,59 @@ router.post('/api/updateSettings', function(req, res) {
   max_temp_comfort = checkFormInputInteger(max_temp_comfort, max_temp_comfort_active, results, 'max_temp_comfort');
   min_temp_comfort = checkFormInputInteger(min_temp_comfort, min_temp_comfort_active, results, 'min_temp_comfort');
 
+  // If any error exists in form input related to integer data type - do not save any changes to db
+  if (Object.keys(results.errors).length > 0) {
+    console.log(results);
+    res.json(results);
+    return;
+  }
+
   // Input form temperature settings - check internal order
   // max_alarm > max_comfort > min_comfort > min_alarm
   if (max_temp_alarm_active) {
     if (max_temp_comfort_active) {
       if (max_temp_comfort > max_temp_alarm) {
         console.log('Max comfort temp must be lower than max alarm temp.');
-        results.errors['max_temp_comfort'] = 'Max comfort temp must be lower than max alarm temp.';
+        results.errors['max_temp_comfort'] = 'must be lower than max alarm temp.';
       }
     }
     if (min_temp_comfort_active) {
       if (min_temp_comfort > max_temp_alarm) {
         console.log('Min comfort temp must be lower than max alarm temp.');
-        results.errors['min_temp_comfort'] = 'Min comfort temp must be lower than max alarm temp.';
+        results.errors['min_temp_comfort'] = 'must be lower than max alarm temp.';
       }
     }
     if (min_temp_alarm_active) {
       if (min_temp_alarm > max_temp_alarm) {
         console.log('Min temp alarm must be lower than max alarm temp.');
-        results.errors['min_temp_alarm'] = 'Min temp alarm must be lower than max alarm temp.';  ///
+        results.errors['min_temp_alarm'] = 'must be lower than max alarm temp.';  ///
       }
     }
   }
   if (max_temp_comfort_active) {
-    if (min_temp_comfort) {
+    if (min_temp_comfort_active) {
       if (min_temp_comfort > max_temp_comfort) {
         console.log('Min comfort temp must be lower than max comfort temp.');
-        results.errors['min_temp_comfort'] = 'Min comfort temp must be lower than max comfort temp.';
+        results.errors['min_temp_comfort'] = 'must be lower than max comfort temp.';
       }
     }
-    if (min_temp_alarm) {
+    if (min_temp_alarm_active) {
       if (min_temp_alarm > max_temp_comfort) {
         console.log('Min alarm temp must be lower than max comfort temp.');
-        results.errors['min_temp_alarm'] = 'Min alarm temp must be lower than max comfort temp.'; ///
+        results.errors['min_temp_alarm'] = 'must be lower than max comfort temp.'; ///
       }
     }
   }
-  if (min_temp_comfort) {
+  if (min_temp_comfort_active) {
     if (min_temp_comfort_active) {
       if (min_temp_alarm > min_temp_comfort) {
         console.log('Min alarm temp must be lower than min comfort temp.');
-        results.errors['min_temp_alarm'] = 'Min alarm temp must be lower than min comfort temp.';  ////
+        results.errors['min_temp_alarm'] = 'must be lower than min comfort temp.';  ////
       }
     }
   }
 
-  // If any error exists in form input - do not save any changes to db
+  // If any error exists in form input related to internal order - do not save any changes to db
   if (Object.keys(results.errors).length > 0) {
     console.log(results);
     res.json(results);

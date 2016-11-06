@@ -141,8 +141,9 @@ function MyTempSettingsForm(props) {
 
     return (
         <div>
-            <div className="form-group">
-                <label>{props.label}</label>
+            <div className="form-group" id={props.id + "Group"}>
+                <label className="control-label">{props.label}</label>
+                <span id={props.id + "Feedback"}></span>
 
                 <div className="row">
                     <div className="col-lg-10 col-md-10 col-sm-10 col-xs-7">
@@ -197,10 +198,10 @@ const formInstance = (
         <hr />
         <span id="settingsInfoDetails">Alarm</span><br/><br/>
         <MyTempSettingsForm id={"formControlsMaxAlarm"} switchButtonId={"max_temp_alarm"} label={"Maximum temperature limit"} type={"maxAlarm"} placeholder={"Max T (°C)"} />
-        <MyTempSettingsForm id={"formControlsMinAlarm"} switchButtonId={"min_temp_alarm"} label={"Minimum temperature limit"} type={"minAlarm"} placeholder={"Min T (°C)"}/>
+        <MyTempSettingsForm id={"formControlsMinAlarm"} switchButtonId={"min_temp_alarm"} label={"Minimum temperature limit"} type={"minAlarm"} placeholder={"Min T (°C)"} />
         <span id="settingsInfoDetails">Comfort zone interval</span><br/><br/>
-        <MyTempSettingsForm id={"formControlsMaxComfort"} switchButtonId={"max_temp_comfort"} label={"Maximum comfort temperature"} type={"maxComfort"} placeholder={"Max T (°C)"}/>
-        <MyTempSettingsForm id={"formControlsMinComfort"} switchButtonId={"min_temp_comfort"} label={"Minimum comfort temperature"} type={"minComfort"} placeholder={"Min T (°C)"}/>
+        <MyTempSettingsForm id={"formControlsMaxComfort"} switchButtonId={"max_temp_comfort"} label={"Maximum comfort temperature"} type={"maxComfort"} placeholder={"Max T (°C)"} />
+        <MyTempSettingsForm id={"formControlsMinComfort"} switchButtonId={"min_temp_comfort"} label={"Minimum comfort temperature"} type={"minComfort"} placeholder={"Min T (°C)"} />
         <HelpButton />
     </form>
 );

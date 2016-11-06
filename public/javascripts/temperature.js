@@ -192,6 +192,15 @@ function saveSettings() {
     var max_temp_comfort_active = switchButtonCheckIfActive("#max_temp_comfort");
     var min_temp_comfort_active = switchButtonCheckIfActive("#min_temp_comfort");
 
+    $("#formControlsMaxAlarmGroup").removeClass("has-error");
+    $("#formControlsMaxAlarmFeedback").html("");
+    $("#formControlsMinAlarmGroup").removeClass("has-error");
+    $("#formControlsMinAlarmFeedback").html("");
+    $("#formControlsMaxComfortGroup").removeClass("has-error");
+    $("#formControlsMaxComfortFeedback").html("");
+    $("#formControlsMinComfortGroup").removeClass("has-error");
+    $("#formControlsMinComfortFeedback").html("");
+
     var request = $.ajax({
         url: "/api/updateSettings",
         type: "POST",
@@ -206,7 +215,26 @@ function saveSettings() {
             console.log("Update Successful");
         }  else {
             console.log('Update not Successful');
-            console.log(msg);
+            console.log(msg.errors);
+
+            // If any error occurred during update - highlight the input field and display error
+            for (var key in msg.errors) {
+                var formControlField;
+                if (key === "max_temp_alarm") {
+                    formControlField = "#formControlsMaxAlarm";
+                }
+                if (key === "min_temp_alarm") {
+                    formControlField = "#formControlsMinAlarm";
+                }
+                if (key === "max_temp_comfort") {
+                    formControlField = "#formControlsMaxComfort";
+                }
+                if (key === "min_temp_comfort") {
+                    formControlField = "#formControlsMinComfort";
+                }
+                $(formControlField + "Group").addClass("has-error");
+                $(formControlField + "Feedback").html(" " + msg.errors[key]);
+            }
         }
     });
 
