@@ -4,8 +4,8 @@ var apiClient = new pg.Client(credentials);
 var express = require('express');
 var router = express.Router();
 /*
-var Switch = require('react-bootstrap-switch');
-*/
+ var Switch = require('react-bootstrap-switch');
+ */
 
 apiClient.on('notice', function(msg) {
   console.log("notice: %j", msg);
@@ -76,18 +76,22 @@ function checkFormInputInteger(intInputField, inputFieldSwitch, results, field) 
   var maxSensorMeasurableTemp  = 125;
   var minSensorMeasurableTemp = -55;
 
-    // Everything that's not a valid temperature gets saved as null to db
-    if (isNaN(intInputField) || intInputField === "" || intInputField > maxSensorMeasurableTemp || intInputField < minSensorMeasurableTemp) {
-        intInputField = null;
-      // If temp switch is ON but input invalid - throw error message
-      if (inputFieldSwitch) {
-        console.log('A temperature (integer) between ' +  minSensorMeasurableTemp + ' °C and ' + maxSensorMeasurableTemp + ' °C needs to be specified.');
-        console.log(results.errors);
-        results.errors[field] = 'A temperature (integer) between ' +  minSensorMeasurableTemp + ' °C and ' + maxSensorMeasurableTemp + ' °C needs to be specified.';
-      }
+  // Everything that's not a valid temperature gets saved as null to db
+  if (isNaN(intInputField) || intInputField === "" || intInputField > maxSensorMeasurableTemp || intInputField < minSensorMeasurableTemp) {
+
+    // If temp switch is ON but input invalid - throw error message
+    if (inputFieldSwitch) {
+      console.log('A temperature (integer) between ' +  minSensorMeasurableTemp + ' °C and ' + maxSensorMeasurableTemp + ' °C needs to be specified.');
+      console.log(results.errors);
+      results.errors[field] = 'A temperature (integer) between ' +  minSensorMeasurableTemp + ' °C and ' + maxSensorMeasurableTemp + ' °C needs to be specified.';
     }
-  return intInputField;
+    // If the switch was on: the value will not be saved and there is no problem to return null
+    return null;
+  }
+  return parseInt(intInputField);
 }
+
+
 
 // Save settings in db
 router.post('/api/updateSettings', function(req, res) {
@@ -109,15 +113,61 @@ router.post('/api/updateSettings', function(req, res) {
   max_temp_comfort = checkFormInputInteger(max_temp_comfort, max_temp_comfort_active, results, 'max_temp_comfort');
   min_temp_comfort = checkFormInputInteger(min_temp_comfort, min_temp_comfort_active, results, 'min_temp_comfort');
 
+  // Input form temperature settings - check internal order
+  // max_alarm > max_comfort > min_comfort > min_alarm
+  if (max_temp_alarm_active) {
+    if (max_temp_comfort_active) {
+      if (max_temp_comfort > max_temp_alarm) {
+        console.log('Max comfort temp must be lower than max alarm temp.');
+        results.errors['max_temp_comfort'] = 'Max comfort temp must be lower than max alarm temp.';
+      }
+    }
+    if (min_temp_comfort_active) {
+      if (min_temp_comfort > max_temp_alarm) {
+        console.log('Min comfort temp must be lower than max alarm temp.');
+        results.errors['min_temp_comfort'] = 'Min comfort temp must be lower than max alarm temp.';
+      }
+    }
+    if (min_temp_alarm_active) {
+      if (min_temp_alarm > max_temp_alarm) {
+        console.log('Min temp alarm must be lower than max alarm temp.');
+        results.errors['min_temp_alarm'] = 'Min temp alarm must be lower than max alarm temp.';  ///
+      }
+    }
+  }
+  if (max_temp_comfort_active) {
+    if (min_temp_comfort) {
+      if (min_temp_comfort > max_temp_comfort) {
+        console.log('Min comfort temp must be lower than max comfort temp.');
+        results.errors['min_temp_comfort'] = 'Min comfort temp must be lower than max comfort temp.';
+      }
+    }
+    if (min_temp_alarm) {
+      if (min_temp_alarm > max_temp_comfort) {
+        console.log('Min alarm temp must be lower than max comfort temp.');
+        results.errors['min_temp_alarm'] = 'Min alarm temp must be lower than max comfort temp.'; ///
+      }
+    }
+  }
+  if (min_temp_comfort) {
+    if (min_temp_comfort_active) {
+      if (min_temp_alarm > min_temp_comfort) {
+        console.log('Min alarm temp must be lower than min comfort temp.');
+        results.errors['min_temp_alarm'] = 'Min alarm temp must be lower than min comfort temp.';  ////
+      }
+    }
+  }
+
   // If any error exists in form input - do not save any changes to db
   if (Object.keys(results.errors).length > 0) {
+    console.log(results);
     res.json(results);
     return;
   }
 
   var data = {id: req.body.product_id, max_temp_alarm: max_temp_alarm, min_temp_alarm: min_temp_alarm,
-  max_temp_comfort: max_temp_comfort, min_temp_comfort: min_temp_comfort, product_alias: req.body.product_alias,
-  max_temp_alarm_active: req.body.max_temp_alarm_active, min_temp_alarm_active: req.body.min_temp_alarm_active, max_temp_comfort_active: req.body.max_temp_comfort_active, min_temp_comfort_active: req.body.min_temp_comfort_active};
+    max_temp_comfort: max_temp_comfort, min_temp_comfort: min_temp_comfort, product_alias: req.body.product_alias,
+    max_temp_alarm_active: req.body.max_temp_alarm_active, min_temp_alarm_active: req.body.min_temp_alarm_active, max_temp_comfort_active: req.body.max_temp_comfort_active, min_temp_comfort_active: req.body.min_temp_comfort_active};
 
   // Note: Saves the last accepted integer input from the form max/min alarm/comf. The input value 900 (900 > max measurable sensor temp) may result in that 90 is being saved to db
   var query = apiClient.query("UPDATE products set max_temp_alarm = $1, min_temp_alarm = $2, max_temp_comfort = $3, min_temp_comfort = $4, product_alias = $5, " +
@@ -146,8 +196,6 @@ router.post('/api/updateSettings', function(req, res) {
 });
 
 
-
-
 // Read settings from db
 router.post('/api/readSettings', function(req, res) {
   var results = [];
@@ -160,8 +208,6 @@ router.post('/api/readSettings', function(req, res) {
   });
 
   query.on('end', function() {
-    console.log("ON END!!!!!!!!!!");
-
     if (results.length == 0) {
       res.json("readNotSuccessful");
     } else {

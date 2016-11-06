@@ -4,14 +4,16 @@
 
 let orangeLow;
 let orangeHigh;
-let redLow;
-let redHigh;
 
-var alarmMaxTempLimit;
-var alarmMinTempLimit;
-var comfortMinTemp;
-var comfortMaxTemp;
+let alarmMaxTempLimit;
+let alarmMinTempLimit;
+let comfortMinTemp;
+let comfortMaxTemp;
 
+let max_temp_alarm_switch;
+let min_temp_alarm_switch;
+let max_temp_comfort_switch;
+let min_temp_comfort_switch;
 
 function init() {
 
@@ -25,7 +27,7 @@ function init() {
         $('html').addClass('noMobile');
     }
 
-
+    // FIXME
     $("#formControlsProductID").val("2A");
     var product_id = $("#formControlsProductID").val();
 
@@ -42,7 +44,6 @@ function init() {
         getCurrentTemp();
         counter = counter + 20;
     }, 20000);
-
 }
 
 $(document).ready(function() {
@@ -58,42 +59,53 @@ $(document).ready(function() {
 
 });
 
-// Automatically save changes in settings form
-function inputChangeDetection() {
-
-    // FORM INPUT FIELD - save input automatically
-    $("#formControlsProductAlias").bind("keyup change", function(){
-        saveSettings();
-    });
-    $("#formControlsMaxAlarm").bind("keyup change", function(){
-        saveSettings();
-    });
-    $("#formControlsMinAlarm").bind("keyup change", function(){
-        saveSettings();
-    });
-    $("#formControlsMaxComfort").bind("keyup change", function(){
-        saveSettings();
-    });
-    $("#formControlsMinComfort").bind("keyup change", function(){
-        saveSettings();
-    });
-
-    // FORM SWITCH BUTTONS - save state automatically
-    $('#max_temp_alarm').on('switchChange.bootstrapSwitch', function (event, state) {
-        saveSettings();
-    });
-    $('#min_temp_alarm').on('switchChange.bootstrapSwitch', function (event, state) {
-        saveSettings();
-    });
-    $('#max_temp_comfort').on('switchChange.bootstrapSwitch', function (event, state) {
-        saveSettings();
-    });
-    $('#min_temp_comfort').on('switchChange.bootstrapSwitch', function (event, state) {
+// FORM INPUT FIELD - save input automatically
+// Input: "#formControlField"
+function saveInputOnKeyup(formControlField) {
+    $(formControlField).bind("keyup change", function(){
         saveSettings();
     });
 }
 
+// SWITCHBUTTON - save state automatically
+// Input: "#formControlField"
+function switchbuttonAutoSaveState(formControlField) {
+    $(formControlField).on('switchChange.bootstrapSwitch', function () {
+        saveSettings();
+    });
+}
+
+function inputChangeDetection() {
+
+    // FIXME timeout on keyup - annars sparas de senaste godkända siffrorna
+
+    // Settings form - save changes automatically
+    saveInputOnKeyup("#formControlsProductAlias");
+    saveInputOnKeyup("#formControlsMaxAlarm");
+    saveInputOnKeyup("#formControlsMinAlarm");
+    saveInputOnKeyup("#formControlsMaxComfort");
+    saveInputOnKeyup("#formControlsMinComfort");
+
+    // Settings switch buttons - save state automatically
+    switchbuttonAutoSaveState('#max_temp_alarm');
+    switchbuttonAutoSaveState('#min_temp_alarm');
+    switchbuttonAutoSaveState('#max_temp_comfort');
+    switchbuttonAutoSaveState('#min_temp_comfort');
+}
+
+// Sets switch state by reading state from DB
+// Takes switchID (value from DB) and switchFormID (form switch identification) as input
+// input switchFormID as "#switchFormID"
+function setSwitchState(switchID, switchFormID) {
+    if (switchID) {
+        $(switchFormID).bootstrapSwitch('state', true);
+    } else {
+        $(switchFormID).bootstrapSwitch('state', false);
+    }
+}
+
 // READ SETTINGS FROM DB
+// Takes the temp sensor product id as input
 function readSettings(product_id) {
 
     // To be used for promise
@@ -111,9 +123,6 @@ function readSettings(product_id) {
         if (settings) {
             console.log("Read Successful");
 
-            // CONTROL THAT comfort span within larm max, min
-            var timeFromLastReading = 4;
-
             $("#formControlsProductAlias").val(settings[0].product_alias);
 
             // Reads and sets temperature setting limits
@@ -126,63 +135,17 @@ function readSettings(product_id) {
             $("#formControlsMaxComfort").val(comfortMaxTemp);
             $("#formControlsMinComfort").val(comfortMinTemp);
 
-            alarmMaxTempLimit = 25;
-            alarmMinTempLimit = -20;
-            comfortMaxTemp = 20;
-            comfortMinTemp = -10;
-
-            // https://github.com/anomal/RainbowVis-JS
-            // Library for colour data visualization. Map numbers to a smooth-transitioning colour legend.
-            orangeLow = new Rainbow();
-            orangeLow.setSpectrum("#FF7416", "#FFB836");
-            orangeLow.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);
-
-            orangeHigh = new Rainbow();
-            orangeHigh.setSpectrum("#FFB836", "#FF7416");
-            orangeHigh.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);
-
-            redHigh = new Rainbow();
-            redHigh.setSpectrum("#FF4E3D", "#E01931");
-            redHigh.setNumberRange(alarmMaxTempLimit, alarmMaxTempLimit+10);
-
-            redLow = new Rainbow();
-            redLow.setSpectrum("#E01931", "#FF4E3D");
-            redLow.setNumberRange(alarmMinTempLimit-10, alarmMinTempLimit);
-
-            alarmMaxTempLimit = settings[0].max_temp_alarm;
-            alarmMinTempLimit = settings[0].min_temp_alarm;
-            comfortMaxTemp = settings[0].max_temp_comfort;
-            comfortMinTemp = settings[0].min_temp_comfort;
-
-
             // SWITCH BUTTONS
-            var max_temp_alarm_switch = settings[0].max_temp_alarm_active;
-            var min_temp_alarm_switch = settings[0].min_temp_alarm_active;
-            var max_temp_comfort_switch = settings[0].max_temp_comfort_active;
-            var min_temp_comfort_switch = settings[0].min_temp_comfort_active;
+            max_temp_alarm_switch = settings[0].max_temp_alarm_active;
+            min_temp_alarm_switch = settings[0].min_temp_alarm_active;
+            max_temp_comfort_switch = settings[0].max_temp_comfort_active;
+            min_temp_comfort_switch = settings[0].min_temp_comfort_active;
 
-            if (max_temp_alarm_switch) {
-                console.log(max_temp_alarm_switch);
-                $("#max_temp_alarm").bootstrapSwitch('state', true);
-            } else {
-                $("#max_temp_alarm").bootstrapSwitch('state', false);
-            }
-            if (min_temp_alarm_switch) {
-                $("#min_temp_alarm").bootstrapSwitch('state', true);
-            } else {
-                $("#min_temp_alarm").bootstrapSwitch('state', false);
-            }
-            if (max_temp_comfort_switch) {
-                $("#max_temp_comfort").bootstrapSwitch('state', true);
-            } else {
-                $("#max_temp_comfort").bootstrapSwitch('state', false);
-            }
-            if (min_temp_comfort_switch) {
-                console.log(max_temp_alarm_switch);
-                $("#min_temp_comfort").bootstrapSwitch('state', true);
-            } else {
-                $("#min_temp_comfort").bootstrapSwitch('state', false);
-            }
+            // READS AND SETS SWITCH BUTTON STATE
+            setSwitchState(max_temp_alarm_switch, "#max_temp_alarm");
+            setSwitchState(min_temp_alarm_switch, "#min_temp_alarm");
+            setSwitchState(max_temp_comfort_switch, "#max_temp_comfort");
+            setSwitchState(min_temp_comfort_switch, "#min_temp_comfort");
 
             deferred.resolve();
 
@@ -209,8 +172,11 @@ function switchButtonCheckIfActive(id) {
     }
 }
 
-// SAVE SETTINGS TO DB
+// UPDATE SETTINGS IN DB
 function saveSettings() {
+
+    // CONTROL THAT comfort span within alarm max, min
+    // CONTROL max alarm < min alarm, comf max < min max
 
     // Retrieve value from input fields
     var product_id = $("#formControlsProductID").val();
@@ -221,15 +187,10 @@ function saveSettings() {
     var min_temp_comfort = $("#formControlsMinComfort").val();
 
     // STORE TEMPERATURE SETTINGS SWITCH BUTTONS' STATE
-    var max_temp_alarm_active;
-    var min_temp_alarm_active;
-    var max_temp_comfort_active;
-    var min_temp_comfort_active;
-
-    max_temp_alarm_active = switchButtonCheckIfActive("#max_temp_alarm");
-    min_temp_alarm_active = switchButtonCheckIfActive("#min_temp_alarm");
-    max_temp_comfort_active = switchButtonCheckIfActive("#max_temp_comfort");
-    min_temp_comfort_active = switchButtonCheckIfActive("#min_temp_comfort");
+    var max_temp_alarm_active = switchButtonCheckIfActive("#max_temp_alarm");
+    var min_temp_alarm_active = switchButtonCheckIfActive("#min_temp_alarm");
+    var max_temp_comfort_active = switchButtonCheckIfActive("#max_temp_comfort");
+    var min_temp_comfort_active = switchButtonCheckIfActive("#min_temp_comfort");
 
     var request = $.ajax({
         url: "/api/updateSettings",
@@ -267,52 +228,99 @@ function getCurrentTemp() {
 
             if (msg == "noFeed") {
                 console.log("No feed were found.");
-                return;
             } else {
-                var currentTemp = msg[0].field1;
+                var currentTemp = parseInt(msg[0].field1);
                 var createdAt = msg[0].created_at;
-                var entryID = msg[0].entry_id;
 
                 var localTimestamp = new Date(createdAt);
                 var localTimestampString = dateFormat(localTimestamp, 'yyyy-mm-dd HH:MM:ss');
 
-                currentTemp = 12;
+                currentTemp = 9;
+
 
                 var tempData = {currentTemp: currentTemp, createdAt: localTimestampString};
                 ReactDOM.render(<DispTempData tempData={tempData}/>, document.getElementById('root'));
 
-/*
-                $("#root").hide();
-*/
-                if (currentTemp <= alarmMinTempLimit) {
-                    var redColorLow = redLow.colourAt(currentTemp);
-                    var redColorHex = "#" + redColorLow;
-                    $(".dispTempData").css("background-color", redColorHex); //RED LOW
+                // https://github.com/anomal/RainbowVis-JS
+                // Library for colour data visualization. Map numbers to a smooth-transitioning colour legend.
+                let orangeColorHigh;
+                let orangeColorLow;
+                let orangeColorHex;
+
+                orangeLow = new Rainbow();
+                orangeHigh = new Rainbow();
+                orangeLow.setSpectrum("#FF7416", "#FFB836");
+                orangeHigh.setSpectrum("#FFB836", "#FF7416");
+
+                if (comfortMaxTemp && alarmMaxTempLimit) {
+                    orangeHigh.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);  // (comfortMax, alarmMax) - comf int.
                 }
-                else if (currentTemp >= alarmMaxTempLimit) {
-                    var redColorHigh = redHigh.colourAt(currentTemp);
-                    var redColorHex = "#" + redColorHigh;
-                    $(".dispTempData").css("background-color", redColorHex); //RED HIGH
+                if (comfortMinTemp && alarmMinTempLimit) {
+                    orangeLow.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);    // (alarmMin, comfortMin) - comf int.
                 }
-                else if ((alarmMinTempLimit < currentTemp && currentTemp < comfortMinTemp)) {
-                    var orangeColorLow = orangeLow.colourAt(currentTemp);
-                    var orangeColorHex = "#" + orangeColorLow;
-                    $(".dispTempData").css("background-color", orangeColorHex); //ORANGE
-                }
-                else if ((comfortMaxTemp < currentTemp && currentTemp < alarmMaxTempLimit)) {
-                    var orangeColorHigh = orangeHigh.colourAt(currentTemp);
-                    var orangeColorHex = "#" + orangeColorHigh;
-                    $(".dispTempData").css("background-color", orangeColorHex); //ORANGE
-                }
-                else if (comfortMinTemp <= currentTemp && currentTemp <= comfortMaxTemp) {
+
+                // SET COLORS based on temperature and temperature settings
+                // IF ANY SWITCH IS ON: DEFAULT TO GREEN
+                if (max_temp_alarm_switch || min_temp_alarm_switch || max_temp_comfort_switch || min_temp_comfort_switch) {
                     $(".dispTempData").css("background-color", "#76C760"); //GREEN
+                    console.log("green");
+                }
+                // ORANGE HIGH
+                if (max_temp_comfort_switch) {
+                    if (currentTemp > comfortMaxTemp) {
+                        console.log("orange high currentTemp > comfortMaxTemp");
+                        orangeColorHigh = orangeHigh.colourAt(currentTemp);
+                        orangeColorHex = "#" + orangeColorHigh;
+                        $(".dispTempData").css("background-color", orangeColorHex); //ORANGE
+                    }
+                }
+                // ORANGE LOW
+                if (min_temp_comfort_switch) {
+                    if (currentTemp < comfortMinTemp) {
+                        console.log("orange low currentTemp < comfortMinTemp");
+                        orangeColorLow = orangeLow.colourAt(currentTemp);
+                        orangeColorHex = "#" + orangeColorLow;
+                        $(".dispTempData").css("background-color", orangeColorHex); //ORANGE
+                    }
+                }
+                // RED HIGH
+                if (max_temp_alarm_switch) {
+                    if (currentTemp >= alarmMaxTempLimit) {
+                        console.log("red high currentTemp >= alarmMaxTempLimit");
+
+                        $(".dispTempData").css("background-color", "#E01931"); //RED
+                    } // ORANGE HIGH - Bounded above by max alarm
+                    if (max_temp_comfort_switch) {
+                        if (currentTemp > comfortMaxTemp && currentTemp < alarmMaxTempLimit) {
+                            console.log("red high currentTemp > comfortMaxTemp && currentTemp < alarmMaxTempLimit");
+
+                            orangeColorHigh = orangeHigh.colourAt(currentTemp);
+                            orangeColorHex = "#" + orangeColorHigh;
+                            $(".dispTempData").css("background-color", orangeColorHex); //ORANGE HIGH
+                        }
+                    }
+                }
+                // RED LOW
+                if (min_temp_alarm_switch) {
+                    if (currentTemp <= alarmMinTempLimit) {
+                        $(".dispTempData").css("background-color", "#E01931"); //RED
+                        console.log(" red low currentTemp <= alarmMinTempLimit");
+                    } // ORANGE LOW - Bounded below by min alarm
+                    if (min_temp_comfort_switch) {
+                        if (currentTemp < comfortMinTemp && currentTemp > alarmMinTempLimit) {
+                            console.log(" red low currentTemp < comfortMaxTemp && currentTemp > alarmMinTempLimit");
+                            orangeColorLow = orangeLow.colourAt(currentTemp);
+                            orangeColorHex = "#" + orangeColorLow;
+                            $(".dispTempData").css("background-color", orangeColorHex); //ORANGE LOW
+                        }
+                    }
                 }
 
                 var now = new Date();
                 var localTimestampNow = new Date(now);
 
-/*                console.log("Now         : " + localTimestampNow);
-                console.log("Last reading: " + localTimestamp)*/
+                console.log("Now         : " + localTimestampNow);
+                console.log("Last reading: " + localTimestamp)
 
                 // http://stackoverflow.com/questions/18623783/get-the-time-difference-between-two-datetimes
                 // Attributions to Matt Johnson
@@ -326,9 +334,7 @@ function getCurrentTemp() {
                 var timeFromLastReadingDays = diffDuration._days;
                 var timeFromLastReadingMinutes = diffDuration._data.minutes;
 
-/*
                 console.log("Time from last reading: " + timeFromLastReadingSeconds + " s");
-*/
 
                 timeFromLastReadingDays = 0;
                 timeFromLastReadingMinutes = 2;
