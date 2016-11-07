@@ -6,8 +6,6 @@ html, body {
   background-size: cover;
   height: 100vh;
   overflow: auto;
-
-
 }
 
 body {
@@ -16,10 +14,6 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 
 }
-/*
-* {
-  box-sizing: border-box;
-}*/
 
 a {
   color: #00B7FF;
@@ -32,11 +26,7 @@ p {
 
 hr {
   border-color: #b2b2b2;
-/*  border-style: solid none;
-  border-width: 1px 0;*/
-
   margin: 10px 0px 20px 0px;
-
 }
 
 .mobile .tempBoard {
@@ -61,6 +51,7 @@ hr {
   background: rgba(0, 0, 0, 0.9);
   border-radius: 0 !important;
   -moz-border-radius: 0 !important;
+  margin: 0 0 0 0;
 }
 
 .header {
@@ -81,9 +72,6 @@ hr {
   text-align: center;
   display: flex;
   align-items: center;
-/*
-  background-color: #4da8c7;
-*/
   border-radius: 0 0 15px 15px;
   border-top: solid 2px floralwhite;
 }
@@ -237,26 +225,24 @@ hr {
   }
 }
 
-
 .popover{
-
   max-width: 100%; !important
+}
 
-
-
-  /*
-    width:100%;
-  */
-
-/*Max Width of the popover (depending on the container!)*//*
-
-
+.location
 /*
-  max-width: 600px;
+.location html, body {
+  overflow:hidden;
+}
 */
 
+#mapID {
+  height: calc(100% - 50px);
 /*
-  width: auto;
+  margin-top: 50px;
 */
+}
 
+#challeId {
+  white-space:nowrap;
 }

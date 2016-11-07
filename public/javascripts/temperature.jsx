@@ -78,8 +78,12 @@ DispTempData.propTypes = {
 // NAVBAR
 
 const onClickSettings = function(event){
-    Settings();
-}
+    settings();
+};
+
+const onClickLocation = function(event){
+    location();
+};
 
 function NavbarDisp(props) {
     return(
@@ -94,7 +98,7 @@ function NavbarDisp(props) {
                 <Navbar.Collapse>
                     <Nav>
                         <NavItem eventKey={1} href="#"><Glyphicon glyph="user" /> &nbsp;My Account</NavItem>
-                        <NavItem eventKey={2} href="#"><Glyphicon glyph="map-marker" /> &nbsp;Location</NavItem>
+                        <NavItem eventKey={2} onClick={onClickLocation} href="#"><Glyphicon glyph="map-marker" /> &nbsp;Location</NavItem>
                         <NavDropdown eventKey={3} title={<span><Glyphicon glyph="stats" />  &nbsp;Charts</span>} id="basic-nav-dropdown">
                             <MenuItem eventKey={3.1}>Action</MenuItem>
                             <MenuItem eventKey={3.2}>Another action</MenuItem>
@@ -178,76 +182,41 @@ const getValidationState = function(event){
 };
 
 const formInstance = (
-    <form>
-        <span id="settingsInfo">Product information</span>
-        <hr />
-        <FieldGroup readOnly
-            id="formControlsProductID"
-            type="ProductID"
-            label="Product ID"
+    <div>
+        <span className='settingsTitle'>SETTINGS</span>
+        <div id="settingsOutline">
+            <div id="settingsForm">
+                <form>
+                    <span id="settingsInfo">Product information</span>
+                    <hr />
+                    <FieldGroup readOnly
+                        id="formControlsProductID"
+                        type="ProductID"
+                        label="Product ID"
 
-        />
-        <FieldGroup
-            id="formControlsProductAlias"
-            type="ProductAlias"
-            label="Product alias"
-            placeholder="Enter product alias"
-        />
-        <br />
-        <span id="settingsInfo">Temperature settings</span>
-        <hr />
-        <span id="settingsInfoDetails">Alarm</span><br/><br/>
-        <MyTempSettingsForm id={"formControlsMaxAlarm"} switchButtonId={"max_temp_alarm"} label={"Maximum temperature limit"} type={"maxAlarm"} placeholder={"Max T (°C)"} />
-        <MyTempSettingsForm id={"formControlsMinAlarm"} switchButtonId={"min_temp_alarm"} label={"Minimum temperature limit"} type={"minAlarm"} placeholder={"Min T (°C)"} />
-        <span id="settingsInfoDetails">Comfort zone interval</span><br/><br/>
-        <MyTempSettingsForm id={"formControlsMaxComfort"} switchButtonId={"max_temp_comfort"} label={"Maximum comfort temperature"} type={"maxComfort"} placeholder={"Max T (°C)"} />
-        <MyTempSettingsForm id={"formControlsMinComfort"} switchButtonId={"min_temp_comfort"} label={"Minimum comfort temperature"} type={"minComfort"} placeholder={"Min T (°C)"} />
-        <HelpButton />
-    </form>
+                    />
+                    <FieldGroup
+                        id="formControlsProductAlias"
+                        type="ProductAlias"
+                        label="Product alias"
+                        placeholder="Enter product alias"
+                    />
+                    <br />
+                    <span id="settingsInfo">Temperature settings</span>
+                    <hr />
+                    <span id="settingsInfoDetails">Alarm</span><br/><br/>
+                    <MyTempSettingsForm id={"formControlsMaxAlarm"} switchButtonId={"max_temp_alarm"} label={"Maximum temperature limit"} type={"maxAlarm"} placeholder={"Max T (°C)"} />
+                    <MyTempSettingsForm id={"formControlsMinAlarm"} switchButtonId={"min_temp_alarm"} label={"Minimum temperature limit"} type={"minAlarm"} placeholder={"Min T (°C)"} />
+                    <span id="settingsInfoDetails">Comfort zone interval</span><br/><br/>
+                    <MyTempSettingsForm id={"formControlsMaxComfort"} switchButtonId={"max_temp_comfort"} label={"Maximum comfort temperature"} type={"maxComfort"} placeholder={"Max T (°C)"} />
+                    <MyTempSettingsForm id={"formControlsMinComfort"} switchButtonId={"min_temp_comfort"} label={"Minimum comfort temperature"} type={"minComfort"} placeholder={"Min T (°C)"} />
+                    <HelpButton />
+                </form>
+            </div>
+        </div>
+    </div>
 );
 
+/*
 ReactDOM.render(formInstance, document.getElementById('settingsForm'));
-
-
-//////////////////
-/// FORM VALIDATION
-
-const FormExample = React.createClass({
-    getInitialState() {
-        return {
-            value: ''
-        };
-    },
-
-    getValidationState() {
-        const length = this.state.value.length;
-        if (length > 10) return 'success';
-        else if (length > 5) return 'warning';
-        else if (length > 0) return 'error';
-    },
-
-    handleChange(e) {
-        this.setState({ value: e.target.value });
-    },
-
-    render() {
-        return (
-            <form>
-                <FormGroup
-                    controlId="formBasicText"
-                    validationState={this.getValidationState()}
-                >
-                    <ControlLabel>Working example with validation</ControlLabel>
-                    <FormControl
-                        type="text"
-                        value={this.state.value}
-                        placeholder="Enter text"
-                        onChange={this.handleChange}
-                    />
-                    <FormControl.Feedback />
-                    <HelpBlock>Validation is based on string length.</HelpBlock>
-                </FormGroup>
-            </form>
-        );
-    }
-});
+*/

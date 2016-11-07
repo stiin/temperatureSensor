@@ -15,12 +15,22 @@ let min_temp_alarm_switch;
 let max_temp_comfort_switch;
 let min_temp_comfort_switch;
 
-function init() {
+var marker;
+
+/*function init() {
+
+
+}*/
+
+$(document).ready(function() {
+/*
+    init();
+*/
 
     // Check type of user device
     var md = new MobileDetect(window.navigator.userAgent);
-/*    console.log("md: " );
-    console.log(md.mobile());*/
+    /*    console.log("md: " );
+     console.log(md.mobile());*/
     if (md.mobile()) {
         $('html').addClass('mobile');
     } else {
@@ -42,22 +52,25 @@ function init() {
     var counter = 0;
     setInterval(function(){
         getCurrentTemp();
+
         counter = counter + 20;
     }, 20000);
-}
 
-$(document).ready(function() {
-    init();
     ReactDOM.render(<NavbarDisp />, document.getElementById('navigation'));
 
     // add help image as popup on click on help-button
     $("[name='my-popover']").popover({
         content: "<img src='images/helpTemp.png'  id='settingsHelpImage' />",
         html: true,
-        viewport: {selector: "#settingsOutline"}
+        viewport: {selector: "#show_pageline"}
     });
 
+/*
+    location();
+*/
+
 });
+
 
 // FORM INPUT FIELD - save input automatically
 // Input: "#formControlField"
@@ -76,8 +89,6 @@ function switchbuttonAutoSaveState(formControlField) {
 }
 
 function inputChangeDetection() {
-
-    // FIXME timeout on keyup - annars sparas de senaste godkända siffrorna
 
     // Settings form - save changes automatically
     saveInputOnKeyup("#formControlsProductAlias");
@@ -245,7 +256,7 @@ function saveSettings() {
 
 function getCurrentTemp() {
 
-        var request = $.ajax({
+    var request = $.ajax({
             url: "api/getChannelFeeds",
             type: "POST",
             data: {},
@@ -257,6 +268,7 @@ function getCurrentTemp() {
             if (msg == "noFeed") {
                 console.log("No feed were found.");
             } else {
+
                 var currentTemp = parseInt(msg[0].field1);
                 var createdAt = msg[0].created_at;
 
@@ -267,7 +279,9 @@ function getCurrentTemp() {
 
 
                 var tempData = {currentTemp: currentTemp, createdAt: localTimestampString};
+
                 ReactDOM.render(<DispTempData tempData={tempData}/>, document.getElementById('root'));
+
 
                 // https://github.com/anomal/RainbowVis-JS
                 // Library for colour data visualization. Map numbers to a smooth-transitioning colour legend.
@@ -379,6 +393,22 @@ function getCurrentTemp() {
                     }
                     blink('.dispTimeData');
                 }
+
+                console.log("Trying to update temp...");
+
+/*
+                marker.bindPopup("<b>Challe's car</b><br>Current&nbsptemp:&nbsp<span id='challeId'>currentTemp</span>&nbsp°C");
+                $("#challeId").html(currentTemp);
+*/
+/*
+                marker.bindPopup("<b>Challe's car</b><br>Current&nbsptemp: " + currentTemp + " °C");
+*/
+
+
+
+
+
+
             }
         });
 
@@ -387,8 +417,30 @@ function getCurrentTemp() {
         });
 }
 
-function Settings () {
-    console.log("in settings");
+
+
+function show_page(page_name) {
+    $("#switch").hide();
+    $("#test").hide();
     $("#root").hide();
-    ReactDOM.render(formInstance, document.getElementById('settings'));
+    $("#settingsPageOutline").hide();
+    $("#mapID").hide();
+    //$('html').removeClass('location');
+
+    if (page_name == "settings") {
+        $("#settingsPageOutline").show();
+    } else if (page_name == "temperature") {
+        $("#root").show();
+    } else if (page_name == "location") {
+        $("#mapID").show();
+        //$('html').addClass('location');
+    }
+}s
+
+function settings() {
+    console.log("in settings");
+
+    show_page("settings");
+    ReactDOM.render(formInstance, document.getElementById('settingsPageOutline'));
+
 }
