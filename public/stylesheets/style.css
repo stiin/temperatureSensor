@@ -5,14 +5,15 @@ html, body {
   -o-background-size: cover;
   background-size: cover;
   height: 100vh;
+/*
   overflow: auto;
+*/
 }
 
 body {
   padding: 0;
   margin: 0;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-
 }
 
 a {
@@ -38,9 +39,6 @@ hr {
 }
 
 .tempBoard {
-/*
-  background: #4da8c7;
-*/
   background: rgba(77,168,199,0.8);
   margin: 70px auto 0 auto;
   border-radius: 10px;
@@ -55,20 +53,16 @@ hr {
 }
 
 .header {
-  padding: 0px 10px;
+  padding: 0 10px;
   text-align: center;
   display: flex;
   align-items: center;
-/*
-  background-color: #4da8c7;
-*/
   border-radius: 15px 15px 0 0;
   border-bottom: solid 2px floralwhite;
-
 }
 
 .footer {
-  padding: 0px 10px;
+  padding: 0 10px;
   text-align: center;
   display: flex;
   align-items: center;
@@ -158,8 +152,7 @@ hr {
 }
 
 #settingsForm {
-
-  padding: 20px 0px 0px 0px;
+  padding: 20px 0 0 0;
   /*  margin: 70px auto 0 auto;
     float: none;*/
 }
@@ -229,20 +222,20 @@ hr {
   max-width: 100%; !important
 }
 
-.location
-/*
-.location html, body {
-  overflow:hidden;
+/*html .location   {
+  overflow: hidden;
 }
-*/
+
+body .location {
+  overflow-y:hidden;
+
+}*/
 
 #mapID {
   height: calc(100% - 50px);
-/*
-  margin-top: 50px;
-*/
 }
 
+/*
 #challeId {
   white-space:nowrap;
-}
+}*/

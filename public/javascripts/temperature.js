@@ -17,15 +17,7 @@ let min_temp_comfort_switch;
 
 var marker;
 
-/*function init() {
-
-
-}*/
-
 $(document).ready(function() {
-/*
-    init();
-*/
 
     // Check type of user device
     var md = new MobileDetect(window.navigator.userAgent);
@@ -37,6 +29,50 @@ $(document).ready(function() {
         $('html').addClass('noMobile');
     }
 
+/*    // FIXME
+    $("#formControlsProductID").val("2A");
+    var product_id = $("#formControlsProductID").val();*/
+
+
+
+
+/*    // Do not save any changes to input form before all values are read from DB
+    var combinedPromise = $.when(readSettings(product_id));
+    combinedPromise.done(function() {
+        inputChangeDetection();
+    });*/
+
+    // Initiate map
+    var mymap = L.map('mapID').setView([57.704005, 11.967924], 14);
+    var OpenStreetMap_Mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 17,
+        minZoom: 8
+    }).addTo(mymap);
+    marker = L.marker([57.704005, 11.967924]).addTo(mymap);
+
+/*    getCurrentTemp(marker);
+
+    // Read temperature every 20 sec
+    var counter = 0;
+    setInterval(function(){
+        getCurrentTemp(marker);
+        counter = counter + 20;
+    }, 20000);
+
+    // Add help image as popup on click on help-button
+    $("[name='my-popover']").popover({
+        content: "<img src='images/helpTemp.png'  id='settingsHelpImage' />",
+        html: true,
+        viewport: {selector: "#show_pageline"}
+    });*/
+
+    show_page("temperature");
+
+});
+
+function temperatureDisplay() {
     // FIXME
     $("#formControlsProductID").val("2A");
     var product_id = $("#formControlsProductID").val();
@@ -47,29 +83,23 @@ $(document).ready(function() {
         inputChangeDetection();
     });
 
-    getCurrentTemp();
+    getCurrentTemp(marker);
 
+    // Read temperature every 20 sec
     var counter = 0;
     setInterval(function(){
-        getCurrentTemp();
-
+        getCurrentTemp(marker);
         counter = counter + 20;
     }, 20000);
 
-    ReactDOM.render(<NavbarDisp />, document.getElementById('navigation'));
-
-    // add help image as popup on click on help-button
+    // Add help image as popup on click on help-button
     $("[name='my-popover']").popover({
         content: "<img src='images/helpTemp.png'  id='settingsHelpImage' />",
         html: true,
         viewport: {selector: "#show_pageline"}
     });
 
-/*
-    location();
-*/
-
-});
+}
 
 
 // FORM INPUT FIELD - save input automatically
@@ -176,11 +206,14 @@ function readSettings(product_id) {
 
 function switchButtonCheckIfActive(id) {
 
-    if ($(id).is(':checked')){
+/*    if ($(id).is(':checked')){
         return true;
     } else {
         return false;
-    }
+
+    }*/
+
+    return $(id).is(':checked');
 }
 
 // UPDATE SETTINGS IN DB
@@ -254,7 +287,7 @@ function saveSettings() {
     });
 }
 
-function getCurrentTemp() {
+function getCurrentTemp(marker) {
 
     var request = $.ajax({
             url: "api/getChannelFeeds",
@@ -275,13 +308,12 @@ function getCurrentTemp() {
                 var localTimestamp = new Date(createdAt);
                 var localTimestampString = dateFormat(localTimestamp, 'yyyy-mm-dd HH:MM:ss');
 
-                currentTemp = 9;
 
+                currentTemp = 0;
 
                 var tempData = {currentTemp: currentTemp, createdAt: localTimestampString};
 
-                ReactDOM.render(<DispTempData tempData={tempData}/>, document.getElementById('root'));
-
+                ReactDOM.render(<DispTempData tempData={tempData}/>, document.getElementById('temperatureDisplay'));
 
                 // https://github.com/anomal/RainbowVis-JS
                 // Library for colour data visualization. Map numbers to a smooth-transitioning colour legend.
@@ -329,8 +361,7 @@ function getCurrentTemp() {
                 if (max_temp_alarm_switch) {
                     if (currentTemp >= alarmMaxTempLimit) {
                         console.log("red high currentTemp >= alarmMaxTempLimit");
-
-                        $(".dispTempData").css("background-color", "#E01931"); //RED
+                        $(".dispTempData").css("background-color", "#EB4549"); //RED
                     } // ORANGE HIGH - Bounded above by max alarm
                     if (max_temp_comfort_switch) {
                         if (currentTemp > comfortMaxTemp && currentTemp < alarmMaxTempLimit) {
@@ -345,7 +376,7 @@ function getCurrentTemp() {
                 // RED LOW
                 if (min_temp_alarm_switch) {
                     if (currentTemp <= alarmMinTempLimit) {
-                        $(".dispTempData").css("background-color", "#E01931"); //RED
+                        $(".dispTempData").css("background-color", "#EB4549"); //RED // FIXME Or E01931
                         console.log(" red low currentTemp <= alarmMinTempLimit");
                     } // ORANGE LOW - Bounded below by min alarm
                     if (min_temp_comfort_switch) {
@@ -382,7 +413,7 @@ function getCurrentTemp() {
                 timeFromLastReadingMinutes = 2;
 
                 if (timeFromLastReadingDays > 0 || timeFromLastReadingMinutes >= 3) {
-                    $(".dispTimeData").css("background-color", "#E01931"); //RED
+                    $(".dispTimeData").css("background-color", "#EB4549"); //RED
 
                     function blink(selector){
                         $(selector).fadeOut(1200, function(){
@@ -396,18 +427,16 @@ function getCurrentTemp() {
 
                 console.log("Trying to update temp...");
 
-/*
-                marker.bindPopup("<b>Challe's car</b><br>Current&nbsptemp:&nbsp<span id='challeId'>currentTemp</span>&nbsp°C");
-                $("#challeId").html(currentTemp);
-*/
-/*
-                marker.bindPopup("<b>Challe's car</b><br>Current&nbsptemp: " + currentTemp + " °C");
-*/
-
-
-
-
-
+                // Add popup to map with temp and user info
+                var popupContent = "<b>Challe's car</b><br>Current&nbsptemp: " + currentTemp + " °C.<br> Time from last reading: ";
+                if (timeFromLastReadingDays === 1) {
+                    popupContent += timeFromLastReadingDays + " day.";
+                } else if (timeFromLastReadingDays > 1) {
+                    popupContent += timeFromLastReadingDays + " days.";
+                } else {
+                    popupContent += timeFromLastReadingMinutes + " minutes.";
+                }
+                marker.bindPopup(popupContent);
 
             }
         });
@@ -418,29 +447,31 @@ function getCurrentTemp() {
 }
 
 
-
 function show_page(page_name) {
-    $("#switch").hide();
-    $("#test").hide();
-    $("#root").hide();
+    console.log("in show_page");
+
+    $("#temperatureDisplay").hide();
     $("#settingsPageOutline").hide();
     $("#mapID").hide();
-    //$('html').removeClass('location');
+
+    $('html').removeClass('location');
 
     if (page_name == "settings") {
         $("#settingsPageOutline").show();
     } else if (page_name == "temperature") {
-        $("#root").show();
+        $("#temperatureDisplay").show();
+        temperatureDisplay();
     } else if (page_name == "location") {
+        console.log("in show_page location");
+
         $("#mapID").show();
-        //$('html').addClass('location');
+        location();
+
+        $('html').addClass('location');
     }
-}s
+}
 
 function settings() {
     console.log("in settings");
-
     show_page("settings");
-    ReactDOM.render(formInstance, document.getElementById('settingsPageOutline'));
-
 }
