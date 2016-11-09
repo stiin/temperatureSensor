@@ -264,7 +264,7 @@ function getTemperatureColor(temperature) {
 
     // Keep the DEFAULT COLOR
     if (! (max_temp_alarm_switch || min_temp_alarm_switch || max_temp_comfort_switch || min_temp_comfort_switch)) {
-        return;
+        return "default";
     }
     // ALARM COLOR
     if ((min_temp_alarm_switch && temperature <= alarmMinTempLimit) ||
@@ -337,31 +337,35 @@ function getCurrentTemp(marker) {
                 let orangeComfort = "#FFB836";  // The orange color closest to comfort temp limit (brightest)
                 let red = "#EB4549";
                 let green = "#76C760";
+                let defaultBlue = "rgba(0,0,0,0.0)";
 
-                if (currentColor === "alarm") {
-                    $(".dispTempData").css("background-color", red);          //RED
+                if (currentColor === "default") {
+                    $(".dispTempData").css("background-color", defaultBlue);            //DEFAULT BLUE
+
+                } else if (currentColor === "alarm") {
+                    $(".dispTempData").css("background-color", red);                    //RED
 
                 } else if (currentColor === "low_gradient_warning") {
                     var rainbowLG = new Rainbow();
                     rainbowLG.setSpectrum(orangeAlarm, orangeComfort);
-                    rainbowLG.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);  //(alarmMin, comfortMin).
+                    rainbowLG.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);    //(alarmMin, comfortMin).
                     let color = rainbowLG.colourAt(currentTemp);
                     let colorHex = "#" + color;
-                    $(".dispTempData").css("background-color", colorHex);           //ORANGE LOW END GRADIENT
+                    $(".dispTempData").css("background-color", colorHex);               //ORANGE LOW END GRADIENT
 
                 } else if (currentColor === "high_gradient_warning") {
                     var rainbowHG = new Rainbow();
                     rainbowHG.setSpectrum(orangeComfort, orangeAlarm);
-                    rainbowHG.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);  //(comfortMax, alarmMax)
+                    rainbowHG.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);    //(comfortMax, alarmMax)
                     let color = rainbowHG.colourAt(currentTemp);
                     let colorHex = "#" + color;
-                    $(".dispTempData").css("background-color", colorHex);           //ORANGE HIGH END GRADIENT
+                    $(".dispTempData").css("background-color", colorHex);               //ORANGE HIGH END GRADIENT
 
                 } else if (currentColor === "warning") {
-                    $(".dispTempData").css("background-color", orangeAlarm);        //SINGLE ORANGE COLOR
+                    $(".dispTempData").css("background-color", orangeAlarm);            //SINGLE ORANGE COLOR
 
                 } else if (currentColor === "comfort") {
-                    $(".dispTempData").css("background-color", green);          //GREEN
+                    $(".dispTempData").css("background-color", green);                  //GREEN
 
                 }
 
@@ -386,8 +390,8 @@ function getCurrentTemp(marker) {
 
                 console.log("Time from last reading: " + timeFromLastReadingSeconds + " s");
 
-/*                timeFromLastReadingDays = 0;
-                timeFromLastReadingMinutes = 2;*/
+                timeFromLastReadingDays = 0;
+                timeFromLastReadingMinutes = 2;
 
                 if (timeFromLastReadingDays > 0 || timeFromLastReadingMinutes >= 3) {
                     $(".dispTimeData").css("background-color", "#EB4549"); //RED
@@ -403,7 +407,6 @@ function getCurrentTemp(marker) {
                 }
 
                 console.log("Trying to update temp...");
-                console.log("timeFromLastReadingHours " + timeFromLastReadingHours);
 
                 // Add popup to map with temperature, time and product info
                 var popupContent = "<b>" + productAlias + "</b><br>Current&nbsptemp: " + currentTemp + " °C.<br> Time from last reading: ";
