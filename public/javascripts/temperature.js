@@ -2,22 +2,10 @@
  * Created by ministini on 2016-10-23.
  */
 
-let orangeLow;
-let orangeHigh;
-
-let productAlias;
-let alarmMaxTempLimit;
-let alarmMinTempLimit;
-let comfortMinTemp;
-let comfortMaxTemp;
-
-let max_temp_alarm_switch;
-let min_temp_alarm_switch;
-let max_temp_comfort_switch;
-let min_temp_comfort_switch;
-
-var marker;
 var map;
+var marker;
+
+var settings = {};
 
 $(document).ready(function() {
 
@@ -139,34 +127,34 @@ function readSettings(product_id) {
         cache: false
     });
 
-    request.done(function(settings) {
+    request.done(function(msg) {
 
-        if (settings) {
+        if (msg) {
             console.log("Read Successful");
 
             // Reads and sets temperature setting limits
-            productAlias = settings[0].product_alias;
-            alarmMaxTempLimit = settings[0].max_temp_alarm;
-            alarmMinTempLimit = settings[0].min_temp_alarm;
-            comfortMaxTemp = settings[0].max_temp_comfort;
-            comfortMinTemp = settings[0].min_temp_comfort;
-            $("#formControlsProductAlias").val(productAlias);
-            $("#formControlsMaxAlarm").val(alarmMaxTempLimit);
-            $("#formControlsMinAlarm").val(alarmMinTempLimit);
-            $("#formControlsMaxComfort").val(comfortMaxTemp);
-            $("#formControlsMinComfort").val(comfortMinTemp);
+            settings.product_alias = msg[0].product_alias;
+            settings.max_temp_alarm = msg[0].max_temp_alarm;
+            settings.min_temp_alarm = msg[0].min_temp_alarm;
+            settings.max_temp_comfort = msg[0].max_temp_comfort;
+            settings.min_temp_comfort = msg[0].min_temp_comfort;
+            $("#formControlsProductAlias").val(settings.product_alias);
+            $("#formControlsMaxAlarm").val(settings.max_temp_alarm);
+            $("#formControlsMinAlarm").val(settings.min_temp_alarm);
+            $("#formControlsMaxComfort").val(settings.max_temp_comfort);
+            $("#formControlsMinComfort").val(settings.min_temp_comfort);
 
             // SWITCH BUTTONS
-            max_temp_alarm_switch = settings[0].max_temp_alarm_active;
-            min_temp_alarm_switch = settings[0].min_temp_alarm_active;
-            max_temp_comfort_switch = settings[0].max_temp_comfort_active;
-            min_temp_comfort_switch = settings[0].min_temp_comfort_active;
+            settings.max_temp_alarm_switch = msg[0].max_temp_alarm_active;
+            settings.min_temp_alarm_switch = msg[0].min_temp_alarm_active;
+            settings.max_temp_comfort_switch = msg[0].max_temp_comfort_active;
+            settings.min_temp_comfort_switch = msg[0].min_temp_comfort_active;
 
             // READS AND SETS SWITCH BUTTON STATE
-            setSwitchState(max_temp_alarm_switch, "#max_temp_alarm");
-            setSwitchState(min_temp_alarm_switch, "#min_temp_alarm");
-            setSwitchState(max_temp_comfort_switch, "#max_temp_comfort");
-            setSwitchState(min_temp_comfort_switch, "#min_temp_comfort");
+            setSwitchState(settings.max_temp_alarm_switch, "#max_temp_alarm");
+            setSwitchState(settings.min_temp_alarm_switch, "#min_temp_alarm");
+            setSwitchState(settings.max_temp_comfort_switch, "#max_temp_comfort");
+            setSwitchState(settings.min_temp_comfort_switch, "#min_temp_comfort");
 
             deferred.resolve();
 
@@ -191,12 +179,9 @@ function switchButtonCheckIfActive(id) {
 // UPDATE SETTINGS IN DB
 function saveSettings() {
 
-    // CONTROL THAT comfort span within alarm max, min
-    // CONTROL max alarm < min alarm, comf max < min max
-
     // Retrieve value from input fields
     var product_id = $("#formControlsProductID").val();
-    var tempProductAlias = $("#formControlsProductAlias").val();
+    var product_alias = $("#formControlsProductAlias").val();
     var max_temp_alarm = $("#formControlsMaxAlarm").val();
     var min_temp_alarm = $("#formControlsMinAlarm").val();
     var max_temp_comfort = $("#formControlsMaxComfort").val();
@@ -220,7 +205,7 @@ function saveSettings() {
     var request = $.ajax({
         url: "/api/updateSettings",
         type: "POST",
-        data: {product_id: product_id, product_alias: tempProductAlias, max_temp_alarm: max_temp_alarm, min_temp_alarm: min_temp_alarm, max_temp_comfort: max_temp_comfort, min_temp_comfort: min_temp_comfort,
+        data: {product_id: product_id, product_alias: product_alias, max_temp_alarm: max_temp_alarm, min_temp_alarm: min_temp_alarm, max_temp_comfort: max_temp_comfort, min_temp_comfort: min_temp_comfort,
             max_temp_alarm_active: max_temp_alarm_active, min_temp_alarm_active: min_temp_alarm_active, max_temp_comfort_active: max_temp_comfort_active, min_temp_comfort_active: min_temp_comfort_active},
         cache: false
     });
@@ -229,7 +214,13 @@ function saveSettings() {
 
         if (msg == "updateSuccessful") {
             console.log("Update Successful");
-            productAlias = tempProductAlias;
+
+            settings.product_alias = product_alias;
+            settings.max_temp_alarm = max_temp_alarm;
+            settings.min_temp_alarm = min_temp_alarm;
+            settings.max_temp_comfort = max_temp_comfort;
+            settings.min_temp_comfort = min_temp_comfort;
+
         }  else {
             console.log('Update not Successful');
             console.log(msg.errors);
@@ -263,31 +254,30 @@ function saveSettings() {
 function getTemperatureColor(temperature) {
 
     // Keep the DEFAULT COLOR
-    if (! (max_temp_alarm_switch || min_temp_alarm_switch || max_temp_comfort_switch || min_temp_comfort_switch)) {
+    if (! (settings.max_temp_alarm_switch || settings.min_temp_alarm_switch || settings.max_temp_comfort_switch || settings.min_temp_comfort_switch)) {
         return "default";
     }
     // ALARM COLOR
-    if ((min_temp_alarm_switch && temperature <= alarmMinTempLimit) ||
-        (max_temp_alarm_switch && temperature >= alarmMaxTempLimit)) {
+    if ((settings.min_temp_alarm_switch && temperature <= settings.min_temp_alarm) ||
+        (settings.max_temp_alarm_switch && temperature >= settings.max_temp_alarm)) {
         return "alarm";
     }
     // WARNING COLOR HIGH END GRADIENT
-    if (min_temp_alarm_switch && min_temp_comfort_switch && temperature < comfortMinTemp) {
+    if (settings.min_temp_alarm_switch && settings.min_temp_comfort_switch && temperature < settings.min_temp_comfort) {
         return "low_gradient_warning";
     }
     // WARNING COLOR LOW END GRADIENT
-    if (max_temp_alarm_switch && max_temp_comfort_switch && temperature > comfortMaxTemp) {
+    if (settings.max_temp_alarm_switch && settings.max_temp_comfort_switch && temperature > settings.max_temp_comfort) {
         return "high_gradient_warning";
     }
     // WARNING COLOR, HIGH AND LOW END, NO GRADIENT
-    if ((min_temp_comfort_switch && temperature < comfortMinTemp) ||
-        (max_temp_comfort_switch && temperature > comfortMaxTemp)) {
+    if ((settings.min_temp_comfort_switch && temperature < settings.min_temp_comfort) ||
+        (settings.max_temp_comfort_switch && temperature > settings.max_temp_comfort)) {
         return "warning";
     }
     // COMFORT COLOR (WITHIN COMFORT INTERVAL)
     return "comfort";
 }
-
 
 function getCurrentTemp(marker) {
 
@@ -302,8 +292,8 @@ function getCurrentTemp(marker) {
 
             if (msg == "noFeed") {
                 console.log("No feed were found.");
-            } else {
 
+            } else {
                 var currentTemp = parseInt(msg[0].field1);
                 var createdAt = msg[0].created_at;
                 var lat = parseFloat(msg[0].field2);
@@ -340,32 +330,32 @@ function getCurrentTemp(marker) {
                 let defaultBlue = "rgba(0,0,0,0.0)";
 
                 if (currentColor === "default") {
-                    $(".dispTempData").css("background-color", defaultBlue);            //DEFAULT BLUE
+                    $(".dispTempData").css("background-color", defaultBlue);                            //DEFAULT BLUE
 
                 } else if (currentColor === "alarm") {
-                    $(".dispTempData").css("background-color", red);                    //RED
+                    $(".dispTempData").css("background-color", red);                                    //RED
 
                 } else if (currentColor === "low_gradient_warning") {
                     var rainbowLG = new Rainbow();
                     rainbowLG.setSpectrum(orangeAlarm, orangeComfort);
-                    rainbowLG.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);    //(alarmMin, comfortMin).
+                    rainbowLG.setNumberRange(settings.min_temp_alarm+1, settings.min_temp_comfort-1);   //(alarmMin, comfortMin).
                     let color = rainbowLG.colourAt(currentTemp);
                     let colorHex = "#" + color;
-                    $(".dispTempData").css("background-color", colorHex);               //ORANGE LOW END GRADIENT
+                    $(".dispTempData").css("background-color", colorHex);                               //ORANGE LOW END GRADIENT
 
                 } else if (currentColor === "high_gradient_warning") {
                     var rainbowHG = new Rainbow();
                     rainbowHG.setSpectrum(orangeComfort, orangeAlarm);
-                    rainbowHG.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);    //(comfortMax, alarmMax)
+                    rainbowHG.setNumberRange(settings.max_temp_comfort+1, settings.max_temp_alarm-1);   //(comfortMax, alarmMax)
                     let color = rainbowHG.colourAt(currentTemp);
                     let colorHex = "#" + color;
-                    $(".dispTempData").css("background-color", colorHex);               //ORANGE HIGH END GRADIENT
+                    $(".dispTempData").css("background-color", colorHex);                               //ORANGE HIGH END GRADIENT
 
                 } else if (currentColor === "warning") {
-                    $(".dispTempData").css("background-color", orangeAlarm);            //SINGLE ORANGE COLOR
+                    $(".dispTempData").css("background-color", orangeAlarm);                            //SINGLE ORANGE COLOR
 
                 } else if (currentColor === "comfort") {
-                    $(".dispTempData").css("background-color", green);                  //GREEN
+                    $(".dispTempData").css("background-color", green);                                  //GREEN
 
                 }
 
@@ -409,7 +399,7 @@ function getCurrentTemp(marker) {
                 console.log("Trying to update temp...");
 
                 // Add popup to map with temperature, time and product info
-                var popupContent = "<b>" + productAlias + "</b><br>Current&nbsptemp: " + currentTemp + " °C.<br> Time from last reading: ";
+                var popupContent = "<b>" + settings.product_alias + "</b><br>Current&nbsptemp: " + currentTemp + " °C.<br> Time from last reading: ";
                 if (timeFromLastReadingDays === 1) {
                     popupContent += timeFromLastReadingDays + " day.";
                 } else if (timeFromLastReadingDays > 1) {
@@ -454,6 +444,7 @@ function show_page(page_name) {
 
     if (page_name == "settings") {
         $("#settingsPageOutline").show();
+        dispSettings();
     } else if (page_name == "temperature") {
         $("#temperatureDisplay").show();
         temperatureDisplay();
@@ -469,7 +460,6 @@ function show_page(page_name) {
     }
 }
 
-function settings() {
+function dispSettings() {
     console.log("in settings");
-    show_page("settings");
 }

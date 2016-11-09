@@ -154,12 +154,10 @@ router.post('/api/updateSettings', function(req, res) {
       }
     }
   }
-  if (min_temp_comfort_active) {
-    if (min_temp_comfort_active) {
-      if (min_temp_alarm > min_temp_comfort) {
-        console.log('Min alarm temp must be lower than min comfort temp.');
-        results.errors['min_temp_alarm'] = 'must be lower than min comfort temp.';  ////
-      }
+  if (min_temp_comfort_active && min_temp_alarm_active) {
+    if (min_temp_alarm > min_temp_comfort) {
+      console.log('Min alarm temp must be lower than min comfort temp.');
+      results.errors['min_temp_alarm'] = 'must be lower than min comfort temp.';  ////
     }
   }
 

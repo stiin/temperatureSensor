@@ -78,7 +78,7 @@ DispTempData.propTypes = {
 // NAVBAR
 
 const onClickSettings = function(event){
-    settings();
+    show_page("settings");
 };
 
 const onClickLocation = function(event){
