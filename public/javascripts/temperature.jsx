@@ -95,7 +95,7 @@ function NavbarDisp(props) {
             <Navbar inverse>
                 <Navbar.Header className="navHeader">
                     <Navbar.Brand>
-                        <a href="#">Stiin</a>
+                        <a onClick={onClickTemperature} href="#">Stiin</a>
                     </Navbar.Brand>
                     <Navbar.Toggle />
                 </Navbar.Header>

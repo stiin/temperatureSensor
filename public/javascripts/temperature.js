@@ -5,6 +5,7 @@
 let orangeLow;
 let orangeHigh;
 
+let productAlias;
 let alarmMaxTempLimit;
 let alarmMinTempLimit;
 let comfortMinTemp;
@@ -16,6 +17,7 @@ let max_temp_comfort_switch;
 let min_temp_comfort_switch;
 
 var marker;
+var map;
 
 $(document).ready(function() {
 
@@ -29,47 +31,25 @@ $(document).ready(function() {
         $('html').addClass('noMobile');
     }
 
-/*    // FIXME
-    $("#formControlsProductID").val("2A");
-    var product_id = $("#formControlsProductID").val();*/
-
-
-
-
-/*    // Do not save any changes to input form before all values are read from DB
-    var combinedPromise = $.when(readSettings(product_id));
-    combinedPromise.done(function() {
-        inputChangeDetection();
-    });*/
-
     // Initiate map
-    var mymap = L.map('mapID').setView([57.704005, 11.967924], 14);
+    map = L.map('mapID');
     var OpenStreetMap_Mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 17,
-        minZoom: 8
-    }).addTo(mymap);
-    marker = L.marker([57.704005, 11.967924]).addTo(mymap);
+        minZoom: 1
+    }).addTo(map);
 
-/*    getCurrentTemp(marker);
+    // Swedish bounds
+    var north = L.latLng(69.06, 20.548611);
+    var south = L.latLng(55.336944, 13.359444);
+    var west = L.latLng(58.928611, 10.9575);
+    var east = L.latLng(65.710833, 24.155833);
 
-    // Read temperature every 20 sec
-    var counter = 0;
-    setInterval(function(){
-        getCurrentTemp(marker);
-        counter = counter + 20;
-    }, 20000);
-
-    // Add help image as popup on click on help-button
-    $("[name='my-popover']").popover({
-        content: "<img src='images/helpTemp.png'  id='settingsHelpImage' />",
-        html: true,
-        viewport: {selector: "#show_pageline"}
-    });*/
+    map.fitBounds([
+        [north], [south], [west], [east]
+    ], {padding: [0.2, 0.2]});   // FIXME The diffference between 0.1 and 0.2 padding..
 
     show_page("temperature");
-
 });
 
 function temperatureDisplay() {
@@ -164,13 +144,13 @@ function readSettings(product_id) {
         if (settings) {
             console.log("Read Successful");
 
-            $("#formControlsProductAlias").val(settings[0].product_alias);
-
             // Reads and sets temperature setting limits
+            productAlias = settings[0].product_alias;
             alarmMaxTempLimit = settings[0].max_temp_alarm;
             alarmMinTempLimit = settings[0].min_temp_alarm;
             comfortMaxTemp = settings[0].max_temp_comfort;
             comfortMinTemp = settings[0].min_temp_comfort;
+            $("#formControlsProductAlias").val(productAlias);
             $("#formControlsMaxAlarm").val(alarmMaxTempLimit);
             $("#formControlsMinAlarm").val(alarmMinTempLimit);
             $("#formControlsMaxComfort").val(comfortMaxTemp);
@@ -224,7 +204,7 @@ function saveSettings() {
 
     // Retrieve value from input fields
     var product_id = $("#formControlsProductID").val();
-    var product_alias = $("#formControlsProductAlias").val();
+    var tempProductAlias = $("#formControlsProductAlias").val();
     var max_temp_alarm = $("#formControlsMaxAlarm").val();
     var min_temp_alarm = $("#formControlsMinAlarm").val();
     var max_temp_comfort = $("#formControlsMaxComfort").val();
@@ -248,7 +228,7 @@ function saveSettings() {
     var request = $.ajax({
         url: "/api/updateSettings",
         type: "POST",
-        data: {product_id: product_id, product_alias: product_alias, max_temp_alarm: max_temp_alarm, min_temp_alarm: min_temp_alarm, max_temp_comfort: max_temp_comfort, min_temp_comfort: min_temp_comfort,
+        data: {product_id: product_id, product_alias: tempProductAlias, max_temp_alarm: max_temp_alarm, min_temp_alarm: min_temp_alarm, max_temp_comfort: max_temp_comfort, min_temp_comfort: min_temp_comfort,
             max_temp_alarm_active: max_temp_alarm_active, min_temp_alarm_active: min_temp_alarm_active, max_temp_comfort_active: max_temp_comfort_active, min_temp_comfort_active: min_temp_comfort_active},
         cache: false
     });
@@ -257,6 +237,7 @@ function saveSettings() {
 
         if (msg == "updateSuccessful") {
             console.log("Update Successful");
+            productAlias = tempProductAlias;
         }  else {
             console.log('Update not Successful');
             console.log(msg.errors);
@@ -287,6 +268,34 @@ function saveSettings() {
     });
 }
 
+function getTemperatureColor(temperature, swi) {
+
+    if (nocheckbox)
+        return blue
+
+    if ((minalarmsw && temp < minlimit) ||
+        (maxalarmsw && temp > maxlimit)) {
+        return red
+    }
+
+    if (minalarmsw && mincomfsw && temp < mincomf) {
+        return low_gradient
+    }
+
+    if (maxalarmsw && maxcomfsw && temp > maxcomf) {
+        return high_gradient
+    }
+
+    if ((mincomfsw && temp < mincomf) ||
+        (maxcomfsw && temp > maxcomf)) {
+        return orange
+    }
+
+    return green
+}
+
+
+
 function getCurrentTemp(marker) {
 
     var request = $.ajax({
@@ -302,37 +311,86 @@ function getCurrentTemp(marker) {
                 console.log("No feed were found.");
             } else {
 
+                console.log("feeed");
+                console.log(msg);
+
                 var currentTemp = parseInt(msg[0].field1);
                 var createdAt = msg[0].created_at;
+                var lat = parseFloat(msg[0].field2);
+                var lon = parseFloat(msg[0].field3);
 
                 var localTimestamp = new Date(createdAt);
                 var localTimestampString = dateFormat(localTimestamp, 'yyyy-mm-dd HH:MM:ss');
 
-
+/*
                 currentTemp = 0;
-
+*/
                 var tempData = {currentTemp: currentTemp, createdAt: localTimestampString};
 
                 ReactDOM.render(<DispTempData tempData={tempData}/>, document.getElementById('temperatureDisplay'));
 
                 // https://github.com/anomal/RainbowVis-JS
                 // Library for colour data visualization. Map numbers to a smooth-transitioning colour legend.
-                let orangeColorHigh;
+
+
                 let orangeColorLow;
-                let orangeColorHex;
-
                 orangeLow = new Rainbow();
-                orangeHigh = new Rainbow();
-                orangeLow.setSpectrum("#FF7416", "#FFB836");
-                orangeHigh.setSpectrum("#FFB836", "#FF7416");
 
-                if (comfortMaxTemp && alarmMaxTempLimit) {
-                    orangeHigh.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);  // (comfortMax, alarmMax) - comf int.
-                }
+                let orangeComfort = "#FF7416";  // The orange color closest to comfort temp limit
+                let orangeAlarm = "#FFB836";   // The orange color closest to alarm temp limit
+
                 if (comfortMinTemp && alarmMinTempLimit) {
                     orangeLow.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);    // (alarmMin, comfortMin) - comf int.
                 }
 
+                ////////////////////////////////////////////////////////////////////////////////////////////
+
+                if (max_temp_alarm_switch && currentTemp >= alarmMaxTempLimit) {
+                    console.log("red high currentTemp >= alarmMaxTempLimit");
+                    $(".dispTempData").css("background-color", "#EB4549"); //RED
+
+                } else if (max_temp_comfort_switch && currentTemp > comfortMaxTemp) {
+                    if (max_temp_alarm_switch) {
+                        console.log("orange high currentTemp > comfortMaxTemp");
+                        var rainbow = new Rainbow();
+                        rainbow.setSpectrum(orangeComfort, orangeAlarm);
+                        rainbow.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);  // (comfortMax, alarmMax) - comf int.
+                        let color = rainbow.colourAt(currentTemp);
+                        let colorHex = "#" + color;
+                        $(".dispTempData").css("background-color", colorHex); //ORANGE SKALA
+                    } else {
+                        $(".dispTempData").css("background-color", orangeAlarm); //ORANGE FAST
+                    }
+
+                } else if (min_temp_comfort_switch && currentTemp >= comfortMinTemp) {
+                    $(".dispTempData").css("background-color", "#76C760"); //GREEN
+                    console.log("green");
+
+                } else if (min_temp_alarm_switch && currentTemp <= alarmMinTempLimit) {
+                    console.log("red low currentTemp <= alarmMinTempLimit");
+                    $(".dispTempData").css("background-color", "#EB4549"); //RED
+
+                } else if (min_temp_comfort_switch && currentTemp < comfortMinTemp) {
+                    if (min_temp_alarm_switch) {
+                        console.log("orange high currentTemp > comfortMaxTemp");
+                        var rainbow = new Rainbow();
+                        rainbow.setSpectrum(orangeAlarm, orangeComfort);
+                        rainbow.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);  // (alarmMin, comfortMin) - comf int.
+                        let color = rainbow.colourAt(currentTemp);
+                        let colorHex = "#" + color;
+                        $(".dispTempData").css("background-color", colorHex); //ORANGE SKALA
+                    } else {
+                        $(".dispTempData").css("background-color", orangeAlarm); //ORANGE FAST
+                    }
+                } else if (max_temp_comfort_switch && currentTemp <= comfortMaxTemp) {
+                    $(".dispTempData").css("background-color", "#76C760"); //GREEN
+                    console.log("green");
+
+                }
+
+
+
+                ////////////////////////////////////////////////////////////////////////////////////////////
                 // SET COLORS based on temperature and temperature settings
                 // IF ANY SWITCH IS ON: DEFAULT TO GREEN
                 if (max_temp_alarm_switch || min_temp_alarm_switch || max_temp_comfort_switch || min_temp_comfort_switch) {
@@ -389,6 +447,9 @@ function getCurrentTemp(marker) {
                     }
                 }
 
+                ////////////////////////////////////////////////////////////////////////////////////////////
+
+
                 var now = new Date();
                 var localTimestampNow = new Date(now);
 
@@ -409,8 +470,8 @@ function getCurrentTemp(marker) {
 
                 console.log("Time from last reading: " + timeFromLastReadingSeconds + " s");
 
-                timeFromLastReadingDays = 0;
-                timeFromLastReadingMinutes = 2;
+/*                timeFromLastReadingDays = 0;
+                timeFromLastReadingMinutes = 2;*/
 
                 if (timeFromLastReadingDays > 0 || timeFromLastReadingMinutes >= 3) {
                     $(".dispTimeData").css("background-color", "#EB4549"); //RED
@@ -428,7 +489,7 @@ function getCurrentTemp(marker) {
                 console.log("Trying to update temp...");
 
                 // Add popup to map with temp and user info
-                var popupContent = "<b>Challe's car</b><br>Current&nbsptemp: " + currentTemp + " °C.<br> Time from last reading: ";
+                var popupContent = "<b>" + productAlias + "</b><br>Current&nbsptemp: " + currentTemp + " °C.<br> Time from last reading: ";
                 if (timeFromLastReadingDays === 1) {
                     popupContent += timeFromLastReadingDays + " day.";
                 } else if (timeFromLastReadingDays > 1) {
@@ -436,8 +497,14 @@ function getCurrentTemp(marker) {
                 } else {
                     popupContent += timeFromLastReadingMinutes + " minutes.";
                 }
-                marker.bindPopup(popupContent);
 
+                // If temperature sensor's location is available - set map view to the sensor's position
+                if (lat && lon) {
+                    var latlng = L.latLng(lat, lon);
+                    marker = L.marker(latlng).addTo(map);
+                    marker.bindPopup(popupContent);
+                    map.setView(latlng, 14);
+                }
             }
         });
 
@@ -450,11 +517,16 @@ function getCurrentTemp(marker) {
 function show_page(page_name) {
     console.log("in show_page");
 
+    // Make sure the popup closes when choosing a tab in navbar
+    map.closePopup();
+
     $("#temperatureDisplay").hide();
     $("#settingsPageOutline").hide();
     $("#mapID").hide();
 
+/*
     $('html').removeClass('location');
+*/
 
     if (page_name == "settings") {
         $("#settingsPageOutline").show();
@@ -467,7 +539,9 @@ function show_page(page_name) {
         $("#mapID").show();
         location();
 
+/*
         $('html').addClass('location');
+*/
     }
 }
 
