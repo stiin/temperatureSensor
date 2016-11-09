@@ -185,14 +185,6 @@ function readSettings(product_id) {
 }
 
 function switchButtonCheckIfActive(id) {
-
-/*    if ($(id).is(':checked')){
-        return true;
-    } else {
-        return false;
-
-    }*/
-
     return $(id).is(':checked');
 }
 
@@ -268,32 +260,33 @@ function saveSettings() {
     });
 }
 
-function getTemperatureColor(temperature, swi) {
+function getTemperatureColor(temperature) {
 
-    if (nocheckbox)
-        return blue
-
-    if ((minalarmsw && temp < minlimit) ||
-        (maxalarmsw && temp > maxlimit)) {
-        return red
+    // Keep the DEFAULT COLOR
+    if (! (max_temp_alarm_switch || min_temp_alarm_switch || max_temp_comfort_switch || min_temp_comfort_switch)) {
+        return;
     }
-
-    if (minalarmsw && mincomfsw && temp < mincomf) {
-        return low_gradient
+    // ALARM COLOR
+    if ((min_temp_alarm_switch && temperature <= alarmMinTempLimit) ||
+        (max_temp_alarm_switch && temperature >= alarmMaxTempLimit)) {
+        return "alarm";
     }
-
-    if (maxalarmsw && maxcomfsw && temp > maxcomf) {
-        return high_gradient
+    // WARNING COLOR HIGH END GRADIENT
+    if (min_temp_alarm_switch && min_temp_comfort_switch && temperature < comfortMinTemp) {
+        return "low_gradient_warning";
     }
-
-    if ((mincomfsw && temp < mincomf) ||
-        (maxcomfsw && temp > maxcomf)) {
-        return orange
+    // WARNING COLOR LOW END GRADIENT
+    if (max_temp_alarm_switch && max_temp_comfort_switch && temperature > comfortMaxTemp) {
+        return "high_gradient_warning";
     }
-
-    return green
+    // WARNING COLOR, HIGH AND LOW END, NO GRADIENT
+    if ((min_temp_comfort_switch && temperature < comfortMinTemp) ||
+        (max_temp_comfort_switch && temperature > comfortMaxTemp)) {
+        return "warning";
+    }
+    // COMFORT COLOR (WITHIN COMFORT INTERVAL)
+    return "comfort";
 }
-
 
 
 function getCurrentTemp(marker) {
@@ -311,9 +304,6 @@ function getCurrentTemp(marker) {
                 console.log("No feed were found.");
             } else {
 
-                console.log("feeed");
-                console.log(msg);
-
                 var currentTemp = parseInt(msg[0].field1);
                 var createdAt = msg[0].created_at;
                 var lat = parseFloat(msg[0].field2);
@@ -322,133 +312,58 @@ function getCurrentTemp(marker) {
                 var localTimestamp = new Date(createdAt);
                 var localTimestampString = dateFormat(localTimestamp, 'yyyy-mm-dd HH:MM:ss');
 
-/*
-                currentTemp = 0;
-*/
-                var tempData = {currentTemp: currentTemp, createdAt: localTimestampString};
+                currentTemp = 30;
 
+                var tempData = {currentTemp: currentTemp, createdAt: localTimestampString};
                 ReactDOM.render(<DispTempData tempData={tempData}/>, document.getElementById('temperatureDisplay'));
+
+                ////////////////////////////////////////////////////////////////////////////////////////////
+                // SET COLORS BASED ON TEMPERATURE AND TEMPERATURE SETTINGS
+                // IF NO SWITCH IS ON: KEEP DEFAULT BLUE COLOR
+                // [ALARM T, ∞) RED
+                // [COMFORT MIN, COMFORT MAX] GREEN
+                // (COMFORT MAX, ALARM MAX) ORANGE GRADIENT
+                // (ALARM MIN, COMFORT MIN) ORANGE GRADIENT
+                // !ALARM: - (COMFORT, ∞) 0R (-∞, COMFORT) SINGLE ORANGE COLOR
+                // NOTE: ALARM MAX > COMFORT MAX > COMFORT MIN > ALARM MIN
+                // NO SETTING IS REQUIRED. ALL COMBINATIONS ARE ACCEPTED.
+                // THE TEMPERATURE MAX AND MIN SETTINGS ARE HANDLED ON THE SERVER SIDE
+
+                let currentColor = getTemperatureColor(currentTemp);
 
                 // https://github.com/anomal/RainbowVis-JS
                 // Library for colour data visualization. Map numbers to a smooth-transitioning colour legend.
+                let orangeAlarm = "#FF7416";    // The orange color closest to alarm temp limit   (darkest)
+                let orangeComfort = "#FFB836";  // The orange color closest to comfort temp limit (brightest)
+                let red = "#EB4549";
+                let green = "#76C760";
 
+                if (currentColor === "alarm") {
+                    $(".dispTempData").css("background-color", red);          //RED
 
-                let orangeColorLow;
-                orangeLow = new Rainbow();
+                } else if (currentColor === "low_gradient_warning") {
+                    var rainbowLG = new Rainbow();
+                    rainbowLG.setSpectrum(orangeAlarm, orangeComfort);
+                    rainbowLG.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);  //(alarmMin, comfortMin).
+                    let color = rainbowLG.colourAt(currentTemp);
+                    let colorHex = "#" + color;
+                    $(".dispTempData").css("background-color", colorHex);           //ORANGE LOW END GRADIENT
 
-                let orangeComfort = "#FF7416";  // The orange color closest to comfort temp limit
-                let orangeAlarm = "#FFB836";   // The orange color closest to alarm temp limit
+                } else if (currentColor === "high_gradient_warning") {
+                    var rainbowHG = new Rainbow();
+                    rainbowHG.setSpectrum(orangeComfort, orangeAlarm);
+                    rainbowHG.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);  //(comfortMax, alarmMax)
+                    let color = rainbowHG.colourAt(currentTemp);
+                    let colorHex = "#" + color;
+                    $(".dispTempData").css("background-color", colorHex);           //ORANGE HIGH END GRADIENT
 
-                if (comfortMinTemp && alarmMinTempLimit) {
-                    orangeLow.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);    // (alarmMin, comfortMin) - comf int.
-                }
+                } else if (currentColor === "warning") {
+                    $(".dispTempData").css("background-color", orangeAlarm);        //SINGLE ORANGE COLOR
 
-                ////////////////////////////////////////////////////////////////////////////////////////////
-
-                if (max_temp_alarm_switch && currentTemp >= alarmMaxTempLimit) {
-                    console.log("red high currentTemp >= alarmMaxTempLimit");
-                    $(".dispTempData").css("background-color", "#EB4549"); //RED
-
-                } else if (max_temp_comfort_switch && currentTemp > comfortMaxTemp) {
-                    if (max_temp_alarm_switch) {
-                        console.log("orange high currentTemp > comfortMaxTemp");
-                        var rainbow = new Rainbow();
-                        rainbow.setSpectrum(orangeComfort, orangeAlarm);
-                        rainbow.setNumberRange(comfortMaxTemp+1, alarmMaxTempLimit-1);  // (comfortMax, alarmMax) - comf int.
-                        let color = rainbow.colourAt(currentTemp);
-                        let colorHex = "#" + color;
-                        $(".dispTempData").css("background-color", colorHex); //ORANGE SKALA
-                    } else {
-                        $(".dispTempData").css("background-color", orangeAlarm); //ORANGE FAST
-                    }
-
-                } else if (min_temp_comfort_switch && currentTemp >= comfortMinTemp) {
-                    $(".dispTempData").css("background-color", "#76C760"); //GREEN
-                    console.log("green");
-
-                } else if (min_temp_alarm_switch && currentTemp <= alarmMinTempLimit) {
-                    console.log("red low currentTemp <= alarmMinTempLimit");
-                    $(".dispTempData").css("background-color", "#EB4549"); //RED
-
-                } else if (min_temp_comfort_switch && currentTemp < comfortMinTemp) {
-                    if (min_temp_alarm_switch) {
-                        console.log("orange high currentTemp > comfortMaxTemp");
-                        var rainbow = new Rainbow();
-                        rainbow.setSpectrum(orangeAlarm, orangeComfort);
-                        rainbow.setNumberRange(alarmMinTempLimit+1, comfortMinTemp-1);  // (alarmMin, comfortMin) - comf int.
-                        let color = rainbow.colourAt(currentTemp);
-                        let colorHex = "#" + color;
-                        $(".dispTempData").css("background-color", colorHex); //ORANGE SKALA
-                    } else {
-                        $(".dispTempData").css("background-color", orangeAlarm); //ORANGE FAST
-                    }
-                } else if (max_temp_comfort_switch && currentTemp <= comfortMaxTemp) {
-                    $(".dispTempData").css("background-color", "#76C760"); //GREEN
-                    console.log("green");
+                } else if (currentColor === "comfort") {
+                    $(".dispTempData").css("background-color", green);          //GREEN
 
                 }
-
-
-
-                ////////////////////////////////////////////////////////////////////////////////////////////
-                // SET COLORS based on temperature and temperature settings
-                // IF ANY SWITCH IS ON: DEFAULT TO GREEN
-                if (max_temp_alarm_switch || min_temp_alarm_switch || max_temp_comfort_switch || min_temp_comfort_switch) {
-                    $(".dispTempData").css("background-color", "#76C760"); //GREEN
-                    console.log("green");
-                }
-                // ORANGE HIGH
-                if (max_temp_comfort_switch) {
-                    if (currentTemp > comfortMaxTemp) {
-                        console.log("orange high currentTemp > comfortMaxTemp");
-                        orangeColorHigh = orangeHigh.colourAt(currentTemp);
-                        orangeColorHex = "#" + orangeColorHigh;
-                        $(".dispTempData").css("background-color", orangeColorHex); //ORANGE
-                    }
-                }
-                // ORANGE LOW
-                if (min_temp_comfort_switch) {
-                    if (currentTemp < comfortMinTemp) {
-                        console.log("orange low currentTemp < comfortMinTemp");
-                        orangeColorLow = orangeLow.colourAt(currentTemp);
-                        orangeColorHex = "#" + orangeColorLow;
-                        $(".dispTempData").css("background-color", orangeColorHex); //ORANGE
-                    }
-                }
-                // RED HIGH
-                if (max_temp_alarm_switch) {
-                    if (currentTemp >= alarmMaxTempLimit) {
-                        console.log("red high currentTemp >= alarmMaxTempLimit");
-                        $(".dispTempData").css("background-color", "#EB4549"); //RED
-                    } // ORANGE HIGH - Bounded above by max alarm
-                    if (max_temp_comfort_switch) {
-                        if (currentTemp > comfortMaxTemp && currentTemp < alarmMaxTempLimit) {
-                            console.log("red high currentTemp > comfortMaxTemp && currentTemp < alarmMaxTempLimit");
-
-                            orangeColorHigh = orangeHigh.colourAt(currentTemp);
-                            orangeColorHex = "#" + orangeColorHigh;
-                            $(".dispTempData").css("background-color", orangeColorHex); //ORANGE HIGH
-                        }
-                    }
-                }
-                // RED LOW
-                if (min_temp_alarm_switch) {
-                    if (currentTemp <= alarmMinTempLimit) {
-                        $(".dispTempData").css("background-color", "#EB4549"); //RED // FIXME Or E01931
-                        console.log(" red low currentTemp <= alarmMinTempLimit");
-                    } // ORANGE LOW - Bounded below by min alarm
-                    if (min_temp_comfort_switch) {
-                        if (currentTemp < comfortMinTemp && currentTemp > alarmMinTempLimit) {
-                            console.log(" red low currentTemp < comfortMaxTemp && currentTemp > alarmMinTempLimit");
-                            orangeColorLow = orangeLow.colourAt(currentTemp);
-                            orangeColorHex = "#" + orangeColorLow;
-                            $(".dispTempData").css("background-color", orangeColorHex); //ORANGE LOW
-                        }
-                    }
-                }
-
-                ////////////////////////////////////////////////////////////////////////////////////////////
-
 
                 var now = new Date();
                 var localTimestampNow = new Date(now);
@@ -467,6 +382,7 @@ function getCurrentTemp(marker) {
 
                 var timeFromLastReadingDays = diffDuration._days;
                 var timeFromLastReadingMinutes = diffDuration._data.minutes;
+                var timeFromLastReadingHours = diffDuration._data.hours;
 
                 console.log("Time from last reading: " + timeFromLastReadingSeconds + " s");
 
@@ -487,18 +403,23 @@ function getCurrentTemp(marker) {
                 }
 
                 console.log("Trying to update temp...");
+                console.log("timeFromLastReadingHours " + timeFromLastReadingHours);
 
-                // Add popup to map with temp and user info
+                // Add popup to map with temperature, time and product info
                 var popupContent = "<b>" + productAlias + "</b><br>Current&nbsptemp: " + currentTemp + " °C.<br> Time from last reading: ";
                 if (timeFromLastReadingDays === 1) {
                     popupContent += timeFromLastReadingDays + " day.";
                 } else if (timeFromLastReadingDays > 1) {
                     popupContent += timeFromLastReadingDays + " days.";
                 } else {
+                    if (timeFromLastReadingHours > 0) {
+                        popupContent += timeFromLastReadingHours + " hours and ";
+                    }
                     popupContent += timeFromLastReadingMinutes + " minutes.";
                 }
 
                 // If temperature sensor's location is available - set map view to the sensor's position
+                // Otherwise keep the default view bounds of Sweden
                 if (lat && lon) {
                     var latlng = L.latLng(lat, lon);
                     marker = L.marker(latlng).addTo(map);
