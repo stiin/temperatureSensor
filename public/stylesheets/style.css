@@ -235,7 +235,12 @@ body .location {
   height: calc(100% - 50px);
 }
 
-/*
-#challeId {
-  white-space:nowrap;
-}*/
+
+#chart {
+  height: 60vh;
+  width: 75vw;
+  background: rgba(255, 255, 255, 0.5);
+  margin: 70px auto 70px auto;
+  float: none;
+  padding: 10px;
+}

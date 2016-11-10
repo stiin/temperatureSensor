@@ -89,6 +89,12 @@ const onClickTemperature = function(event){
     show_page("temperature");
 };
 
+const onClickTempChart = function(event){
+    show_page("tempChart");
+};
+
+
+
 function NavbarDisp(props) {
     return(
         <div>
@@ -102,20 +108,20 @@ function NavbarDisp(props) {
                 <Navbar.Collapse>
                     <Nav>
                         <NavItem eventKey={1} onClick={onClickTemperature} href="#"><Glyphicon glyph="heart" /> &nbsp;Temperature</NavItem>
-                        <NavItem eventKey={2} href="#"><Glyphicon glyph="user" /> &nbsp;My Account</NavItem>
-                        <NavItem eventKey={3} onClick={onClickLocation} href="#"><Glyphicon glyph="map-marker" /> &nbsp;Location</NavItem>
-                        <NavDropdown eventKey={4} title={<span><Glyphicon glyph="stats" />  &nbsp;Charts</span>} id="basic-nav-dropdown">
-                            <MenuItem eventKey={4.1}>Action</MenuItem>
-                            <MenuItem eventKey={4.2}>Another action</MenuItem>
-                            <MenuItem eventKey={4.3}>Something else here</MenuItem>
+                        <NavItem eventKey={2} onClick={onClickLocation} href="#"><Glyphicon glyph="map-marker" /> &nbsp;Location</NavItem>
+                        <NavDropdown eventKey={3} title={<span><Glyphicon glyph="stats" />  &nbsp;Charts</span>} id="basic-nav-dropdown">
+                            <MenuItem eventKey={3.1} onClick={onClickTempChart}>Temperature Chart</MenuItem>
+                            <MenuItem eventKey={3.2}>Another action</MenuItem>
+                            <MenuItem eventKey={3.3}>Something else here</MenuItem>
                             <MenuItem divider />
-                            <MenuItem eventKey={4.4}>Separated link</MenuItem>
+                            <MenuItem eventKey={3.4}>Separated link</MenuItem>
                         </NavDropdown>
-                        <NavItem eventKey={5} href="#"><Glyphicon glyph="tree-conifer" /> &nbsp;Geofences</NavItem>
+                        <NavItem eventKey={4} href="#"><Glyphicon glyph="tree-conifer" /> &nbsp;Geofences</NavItem>
                     </Nav>
                     <Nav pullRight>
+                        <NavItem eventKey={5} href="#"><Glyphicon glyph="question-sign" /> &nbsp;Help & FAQ</NavItem>
                         <NavItem eventKey={6} onClick={onClickSettings}><Glyphicon glyph="cog" />  &nbsp;Settings</NavItem>
-                        <NavItem eventKey={7} href="#"><Glyphicon glyph="question-sign" /> &nbsp;Help & FAQ</NavItem>
+                        <NavItem eventKey={7} href="#"><Glyphicon glyph="user" /> &nbsp;My Account</NavItem>
                         <NavItem eventKey={8} href="#"><Glyphicon glyph="log-out" /> &nbsp;Sign out</NavItem>
                     </Nav>
                 </Navbar.Collapse>

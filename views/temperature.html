@@ -47,8 +47,11 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 
-        <script src="/javascripts/location.js"></script>
+        <!-- Chart.js and moment.js -->
+        <script src="/javascripts/moment.js"></script>
+        <script src="/javascripts/Chart.min.js"></script>
 
+        <script src="/javascripts/location.js"></script>
 
     </head>
     <body>
@@ -62,6 +65,10 @@
     <div id="settingsPageOutline" style="display: none;"></div>
 
     <div id="mapID"></div>
+
+    <div id="chart">
+        <canvas id="tempChart" width="75vw" height="60vh" style="display: none;"></canvas>
+    </div>
 
 
     <script type="text/babel" src="javascripts/location.js"></script>

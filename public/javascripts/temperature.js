@@ -2,10 +2,13 @@
  * Created by ministini on 2016-10-23.
  */
 
-var map;
-var marker;
+let map;
+let marker;
 
-var settings = {};
+let settings = {};
+let tempDataSerie = {temp: [], timestamp: [], timestamp_raw: [], lat: [], lon: []};
+let myLineChart;
+
 
 $(document).ready(function() {
 
@@ -51,12 +54,13 @@ function temperatureDisplay() {
         inputChangeDetection();
     });
 
-    getCurrentTemp(marker);
+    let number_of_chart_entries = 10;  // FIXME
+    getCurrentTemp(marker, number_of_chart_entries);
 
     // Read temperature every 20 sec
     var counter = 0;
     setInterval(function(){
-        getCurrentTemp(marker);
+        getCurrentTemp(marker, number_of_chart_entries);
         counter = counter + 20;
     }, 20000);
 
@@ -279,12 +283,13 @@ function getTemperatureColor(temperature) {
     return "comfort";
 }
 
-function getCurrentTemp(marker) {
+// Retrieves the last 10 temperature data entries
+function getCurrentTemp(marker, number_of_entries) {
 
     var request = $.ajax({
             url: "api/getChannelFeeds",
             type: "POST",
-            data: {},
+            data: {number_of_entries: number_of_entries},
             cache: false
         });
 
@@ -294,16 +299,51 @@ function getCurrentTemp(marker) {
                 console.log("No feed were found.");
 
             } else {
-                var currentTemp = parseInt(msg[0].field1);
-                var createdAt = msg[0].created_at;
-                var lat = parseFloat(msg[0].field2);
-                var lon = parseFloat(msg[0].field3);
 
-                var localTimestamp = new Date(createdAt);
-                var localTimestampString = dateFormat(localTimestamp, 'yyyy-mm-dd HH:MM:ss');
+                tempDataSerie["timestamp"] = [];
+                tempDataSerie["timestamp_raw"] = [];
+                tempDataSerie["temp"] = [];
+                tempDataSerie["lat"] = [];
+                tempDataSerie["lon"] = [];
 
+                for (let i = 0; i < msg[0].feeds.length; i++) {
+
+                    let created_at_tmp = msg[0].feeds[i].created_at;
+                    let currentTemp_tmp = parseFloat(msg[0].feeds[i].field1);
+                    let lat_tmp = parseFloat(msg[0].feeds[i].field2);
+                    let lon_tmp = parseFloat(msg[0].feeds[i].field3);
+
+                    var localTimestamp_tmp = new Date(created_at_tmp);
+                    var localTimestampString_tmp = dateFormat(localTimestamp_tmp, 'yyyy-mm-dd HH:MM:ss');
+
+                    tempDataSerie["timestamp_raw"].push(localTimestamp_tmp);
+                    tempDataSerie["timestamp"].push(localTimestampString_tmp);
+                    tempDataSerie["temp"].push(currentTemp_tmp);
+                    tempDataSerie["lat"].push(lat_tmp);
+                    tempDataSerie["lon"].push(lon_tmp);
+                }
+/*
                 currentTemp = 30;
+*/
+                // Retrieves the last temperature data entry
+                var currentTemp = tempDataSerie["temp"][tempDataSerie["temp"].length - 1];
+                var localTimestamp = tempDataSerie["timestamp_raw"][tempDataSerie["timestamp"].length - 1];
+                var localTimestampString = tempDataSerie["timestamp"][tempDataSerie["timestamp"].length - 1];
+                var lat = tempDataSerie["lat"][tempDataSerie["lat"].length - 1];
+                var lon = tempDataSerie["lon"][tempDataSerie["lon"].length - 1];
 
+                console.log("*****");
+                console.log(localTimestampString);
+                console.log(currentTemp);
+                console.log(lat);
+                console.log(lon);
+                console.log("*****");
+
+                if (myLineChart) {
+                    myLineChart.update();
+                }
+
+                // Displays the latest temperature data
                 var tempData = {currentTemp: currentTemp, createdAt: localTimestampString};
                 ReactDOM.render(<DispTempData tempData={tempData}/>, document.getElementById('temperatureDisplay'));
 
@@ -362,8 +402,8 @@ function getCurrentTemp(marker) {
                 var now = new Date();
                 var localTimestampNow = new Date(now);
 
-                console.log("Now         : " + localTimestampNow);
-                console.log("Last reading: " + localTimestamp)
+/*                console.log("Now         : " + localTimestampNow);
+                console.log("Last reading: " + localTimestamp);*/
 
                 // http://stackoverflow.com/questions/18623783/get-the-time-difference-between-two-datetimes
                 // Attributions to Matt Johnson
@@ -378,7 +418,9 @@ function getCurrentTemp(marker) {
                 var timeFromLastReadingMinutes = diffDuration._data.minutes;
                 var timeFromLastReadingHours = diffDuration._data.hours;
 
+/*
                 console.log("Time from last reading: " + timeFromLastReadingSeconds + " s");
+*/
 
                 timeFromLastReadingDays = 0;
                 timeFromLastReadingMinutes = 2;
@@ -395,8 +437,6 @@ function getCurrentTemp(marker) {
                     }
                     blink('.dispTimeData');
                 }
-
-                console.log("Trying to update temp...");
 
                 // Add popup to map with temperature, time and product info
                 var popupContent = "<b>" + settings.product_alias + "</b><br>Current&nbsptemp: " + currentTemp + " °C.<br> Time from last reading: ";
@@ -429,7 +469,6 @@ function getCurrentTemp(marker) {
 
 
 function show_page(page_name) {
-    console.log("in show_page");
 
     // Make sure the popup closes when choosing a tab in navbar
     map.closePopup();
@@ -437,7 +476,7 @@ function show_page(page_name) {
     $("#temperatureDisplay").hide();
     $("#settingsPageOutline").hide();
     $("#mapID").hide();
-
+    $("#chart").hide();
 /*
     $('html').removeClass('location');
 */
@@ -445,21 +484,81 @@ function show_page(page_name) {
     if (page_name == "settings") {
         $("#settingsPageOutline").show();
         dispSettings();
-    } else if (page_name == "temperature") {
+    } else if (page_name === "temperature") {
         $("#temperatureDisplay").show();
         temperatureDisplay();
-    } else if (page_name == "location") {
+    } else if (page_name === "location") {
         console.log("in show_page location");
 
         $("#mapID").show();
         location();
-
 /*
         $('html').addClass('location');
 */
+    }  else if (page_name === "tempChart") {
+        $("#tempChart").show();
+        $("#chart").show();
+        tempChart();
     }
 }
 
 function dispSettings() {
     console.log("in settings");
+}
+
+function tempChart() {
+    console.log("in tempChart");
+
+    // If chart already initiated - do nothing
+    if (myLineChart) {
+        return;
+    }
+
+    var ctx = $("#tempChart");
+    var options = {
+        maintainAspectRatio: false,
+        scales: {
+            yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    position: 'top',
+                    labelString: 'T °C'
+                }
+            }]
+        }
+    };
+
+    var data = {
+        labels:  tempDataSerie["timestamp"],
+        datasets: [
+            {
+                label: "Temperature (°C)",
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: "rgba(75,192,192,0.4)",
+                borderColor: "rgba(75,192,192,1)",
+                borderCapStyle: 'butt',
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: 'miter',
+                pointBorderColor: "rgba(75,192,192,1)",
+                pointBackgroundColor: "#fff",
+                pointBorderWidth: 1,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                pointHoverBorderWidth: 2,
+                pointRadius: 1,
+                pointHitRadius: 10,
+                data: tempDataSerie["temp"],
+                spanGaps: false
+            }
+        ]
+    };
+    myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: options
+    });
+
 }

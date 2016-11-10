@@ -41,10 +41,15 @@ client.attachChannel(channelID, { writeKey:yourWriteKey, readKey: yourReadKey}, 
 
 router.post('/api/getChannelFeeds', function(req, res) {
 
+  //  client.getLastEntryInChannelFeed(channelID, function(err, resp)
+  //client.getChannelFeeds(channelId, query, callBack);
+
   var results = [];
-  client.getLastEntryInChannelFeed(channelID, function(err, resp) {
+  client.getChannelFeeds(channelID, {results: req.body.number_of_entries}, function(err, resp) {
     if (!err && resp) {
+      console.log("*****************");
       console.log('getFieldFeed successful. Entry number was: ' + resp);
+      console.log(resp);
       results.push(resp);
     }
     else {
