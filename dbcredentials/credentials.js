@@ -1,10 +1,10 @@
 var pg = require('pg');
 
-var host = 'localhost';
-var port = '5433';
-var dbName = 'temp_sensor';
+var host = 'default';
+var port = 'default';
+var dbName = 'default';
 
-var connectionString = 'postgres://postgres:terror@' + host + ':' + port + '/' + dbName;
+var connectionString = 'postgres://default:default@' + host + ':' + port + '/' + dbName;
 
 // Export the connection string for usage by the API
 module.exports = connectionString;

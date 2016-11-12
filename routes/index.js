@@ -3,9 +3,6 @@ var credentials = require('../dbcredentials/credentials.js');
 var apiClient = new pg.Client(credentials);
 var express = require('express');
 var router = express.Router();
-/*
- var Switch = require('react-bootstrap-switch');
- */
 
 apiClient.on('notice', function(msg) {
   console.log("notice: %j", msg);
@@ -21,8 +18,6 @@ apiClient.connect(function(err) {
   }
 });
 
-
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('temperature', { title: 'Express' });
@@ -33,16 +28,13 @@ var ThingSpeakClient = require('thingspeakclient');
 var client = new ThingSpeakClient();
 
 // Credentials
-var yourWriteKey = 'JJLR5K6WB0KA0MIA';
-var yourReadKey = '32KENJN58CR73TQ9';
-var channelID = 158631;
+var yourWriteKey = 'default';
+var yourReadKey = 'default';
+var channelID = 0;
 
 client.attachChannel(channelID, { writeKey:yourWriteKey, readKey: yourReadKey}, callBackThingspeak);
 
 router.post('/api/getChannelFeeds', function(req, res) {
-
-  //  client.getLastEntryInChannelFeed(channelID, function(err, resp)
-  //client.getChannelFeeds(channelId, query, callBack);
 
   var results = [];
   client.getChannelFeeds(channelID, {results: req.body.number_of_entries}, function(err, resp) {
@@ -107,8 +99,6 @@ router.post('/api/updateSettings', function(req, res) {
   var min_temp_comfort = req.body.min_temp_comfort;
   var entries = req.body.entries;
 
-  console.log(entries);
-
   var max_temp_alarm_active = req.body.max_temp_alarm_active.toLowerCase() == 'true' ? true : false;
   var min_temp_alarm_active = req.body.min_temp_alarm_active.toLowerCase() == 'true' ? true : false;
   var max_temp_comfort_active = req.body.max_temp_comfort_active.toLowerCase() == 'true' ? true : false;
@@ -119,9 +109,8 @@ router.post('/api/updateSettings', function(req, res) {
   max_temp_comfort = checkFormInputInteger(max_temp_comfort, max_temp_comfort_active, results, 'max_temp_comfort');
   min_temp_comfort = checkFormInputInteger(min_temp_comfort, min_temp_comfort_active, results, 'min_temp_comfort');
 
-
-
-  if (isNaN(entries) || entries < 0) {
+  // Number of chart entries needs to be a positive integer
+  if (isNaN(entries) || entries <= 0 || entries === "") {
     results.errors['entries'] = 'Enter a (positive) integer.';
   } else {
     entries = parseInt(entries);

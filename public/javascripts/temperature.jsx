@@ -176,6 +176,24 @@ function MyTempSettingsForm(props) {
     );
 }
 
+function MyChartSettingForm(props) {
+
+    return (
+        <div>
+            <div className="form-group" id={props.id + "Group"}>
+                <label className="control-label">{props.label}</label>
+                <span id={props.id + "Feedback"}></span>
+
+                <div className="row">
+                    <div className="col-lg-10 col-md-10 col-sm-10 col-xs-7">
+                        <input type={props.type} className="form-control" id={props.id} placeholder={props.placeholder} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function HelpButton() {
     return (
         <div style={{overflow:"auto"}}>
@@ -204,7 +222,6 @@ const formInstance = (
                         id="formControlsProductID"
                         type="ProductID"
                         label="Product ID"
-
                     />
                     <FieldGroup
                         id="formControlsProductAlias"
@@ -224,12 +241,7 @@ const formInstance = (
                     <br />
                     <span id="settingsInfo">Chart settings</span>
                     <hr />
-                    <FieldGroup
-                        id="formControlsNumberOfChartEntries"
-                        type="numberOfChartEntries"
-                        label="Number of logged entries to show on chart"
-                        placeholder="Enter number of entries (default: 30)"
-                    />
+                    <MyChartSettingForm id={"formControlsNumberOfChartEntries"} label={"Number of logged entries to show on chart (default: 30)"} type={"numberOfChartEntries"} placeholder={"Enter number of entries"} />
                     <HelpButton />
                 </form>
             </div>
