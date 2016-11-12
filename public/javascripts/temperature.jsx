@@ -216,11 +216,20 @@ const formInstance = (
                     <span id="settingsInfo">Temperature settings</span>
                     <hr />
                     <span id="settingsInfoDetails">Alarm</span><br/><br/>
-                    <MyTempSettingsForm id={"formControlsMaxAlarm"} switchButtonId={"max_temp_alarm"} label={"Maximum temperature limit"} type={"maxAlarm"} placeholder={"Max T (°C)"} />
-                    <MyTempSettingsForm id={"formControlsMinAlarm"} switchButtonId={"min_temp_alarm"} label={"Minimum temperature limit"} type={"minAlarm"} placeholder={"Min T (°C)"} />
+                    <MyTempSettingsForm id={"formControlsMaxAlarm"} switchButtonId={"max_temp_alarm"} label={"Maximum temperature limit"} type={"maxAlarm"} placeholder={"Enter max T (°C)"} />
+                    <MyTempSettingsForm id={"formControlsMinAlarm"} switchButtonId={"min_temp_alarm"} label={"Minimum temperature limit"} type={"minAlarm"} placeholder={"Enter min T (°C)"} />
                     <span id="settingsInfoDetails">Comfort zone interval</span><br/><br/>
-                    <MyTempSettingsForm id={"formControlsMaxComfort"} switchButtonId={"max_temp_comfort"} label={"Maximum comfort temperature"} type={"maxComfort"} placeholder={"Max T (°C)"} />
-                    <MyTempSettingsForm id={"formControlsMinComfort"} switchButtonId={"min_temp_comfort"} label={"Minimum comfort temperature"} type={"minComfort"} placeholder={"Min T (°C)"} />
+                    <MyTempSettingsForm id={"formControlsMaxComfort"} switchButtonId={"max_temp_comfort"} label={"Maximum comfort temperature"} type={"maxComfort"} placeholder={"Enter max T (°C)"} />
+                    <MyTempSettingsForm id={"formControlsMinComfort"} switchButtonId={"min_temp_comfort"} label={"Minimum comfort temperature"} type={"minComfort"} placeholder={"Enter min T (°C)"} />
+                    <br />
+                    <span id="settingsInfo">Chart settings</span>
+                    <hr />
+                    <FieldGroup
+                        id="formControlsNumberOfChartEntries"
+                        type="numberOfChartEntries"
+                        label="Number of logged entries to show on chart (Default: 10)"
+                        placeholder="Enter number of entries"
+                    />
                     <HelpButton />
                 </form>
             </div>

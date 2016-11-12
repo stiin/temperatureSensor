@@ -12,6 +12,13 @@ let myLineChart;
 
 $(document).ready(function() {
 
+    // Close navbar on click - http://stackoverflow.com/questions/21203111/bootstrap-3-collapsed-menu-doesnt-close-on-click
+    $(document).on('click','.navbar-collapse.in',function(e) {
+        if( $(e.target).is('a') && $(e.target).attr('class') != 'dropdown-toggle' ) {
+            $(this).collapse('hide');
+        }
+    });
+
     // Check type of user device
     var md = new MobileDetect(window.navigator.userAgent);
     /*    console.log("md: " );
@@ -24,8 +31,8 @@ $(document).ready(function() {
 
     // Initiate map
     map = L.map('mapID');
-    var OpenStreetMap_Mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 17,
         minZoom: 1
     }).addTo(map);
@@ -340,6 +347,8 @@ function getCurrentTemp(marker, number_of_entries) {
                 console.log("*****");
 
                 if (myLineChart) {
+                    myLineChart.data.datasets[0].data = tempDataSerie["temp"];
+                    myLineChart.data.labels = tempDataSerie["timestamp"];
                     myLineChart.update();
                 }
 
@@ -560,5 +569,11 @@ function tempChart() {
         data: data,
         options: options
     });
+
+    console.log(myLineChart.data.datasets[0].data);
+    console.log(myLineChart.data.labels);
+
+
+    myLineChart.update();
 
 }
