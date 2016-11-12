@@ -9,6 +9,7 @@ let settings = {};
 let tempDataSerie = {temp: [], timestamp: [], timestamp_raw: [], lat: [], lon: []};
 let myLineChart;
 
+let getCurrentTempGlobal;
 
 $(document).ready(function() {
 
@@ -29,26 +30,9 @@ $(document).ready(function() {
         $('html').addClass('noMobile');
     }
 
-    // Initiate map
-    map = L.map('mapID');
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 17,
-        minZoom: 1
-    }).addTo(map);
-
-    // Swedish bounds
-    var north = L.latLng(69.06, 20.548611);
-    var south = L.latLng(55.336944, 13.359444);
-    var west = L.latLng(58.928611, 10.9575);
-    var east = L.latLng(65.710833, 24.155833);
-
-    map.fitBounds([
-        [north], [south], [west], [east]
-    ], {padding: [0.2, 0.2]});   // FIXME The diffference between 0.1 and 0.2 padding..
-
     show_page("temperature");
 });
+
 
 function temperatureDisplay() {
     // FIXME
@@ -61,13 +45,20 @@ function temperatureDisplay() {
         inputChangeDetection();
     });
 
+
+    getCurrentTempGlobal = function() {
+        getCurrentTemp(marker, number_of_chart_entries);
+    };
+
     let number_of_chart_entries = 10;  // FIXME
-    getCurrentTemp(marker, number_of_chart_entries);
+    getCurrentTempGlobal();
+
+
 
     // Read temperature every 20 sec
     var counter = 0;
     setInterval(function(){
-        getCurrentTemp(marker, number_of_chart_entries);
+        getCurrentTempGlobal();
         counter = counter + 20;
     }, 20000);
 
@@ -462,11 +453,11 @@ function getCurrentTemp(marker, number_of_entries) {
 
                 // If temperature sensor's location is available - set map view to the sensor's position
                 // Otherwise keep the default view bounds of Sweden
-                if (lat && lon) {
+                if (map && lat && lon) {
                     var latlng = L.latLng(lat, lon);
                     marker = L.marker(latlng).addTo(map);
                     marker.bindPopup(popupContent);
-                    map.setView(latlng, 14);
+                    map.flyTo(latlng, 14);
                 }
             }
         });
@@ -480,7 +471,9 @@ function getCurrentTemp(marker, number_of_entries) {
 function show_page(page_name) {
 
     // Make sure the popup closes when choosing a tab in navbar
-    map.closePopup();
+    if (map) {
+        map.closePopup();
+    }
 
     $("#temperatureDisplay").hide();
     $("#settingsPageOutline").hide();
