@@ -105,6 +105,9 @@ router.post('/api/updateSettings', function(req, res) {
   var min_temp_alarm = req.body.min_temp_alarm;
   var max_temp_comfort = req.body.max_temp_comfort;
   var min_temp_comfort = req.body.min_temp_comfort;
+  var entries = req.body.entries;
+
+  console.log(entries);
 
   var max_temp_alarm_active = req.body.max_temp_alarm_active.toLowerCase() == 'true' ? true : false;
   var min_temp_alarm_active = req.body.min_temp_alarm_active.toLowerCase() == 'true' ? true : false;
@@ -115,6 +118,14 @@ router.post('/api/updateSettings', function(req, res) {
   min_temp_alarm = checkFormInputInteger(min_temp_alarm, min_temp_alarm_active, results, 'min_temp_alarm');
   max_temp_comfort = checkFormInputInteger(max_temp_comfort, max_temp_comfort_active, results, 'max_temp_comfort');
   min_temp_comfort = checkFormInputInteger(min_temp_comfort, min_temp_comfort_active, results, 'min_temp_comfort');
+
+
+
+  if (isNaN(entries) || entries < 0) {
+    results.errors['entries'] = 'Enter a (positive) integer.';
+  } else {
+    entries = parseInt(entries);
+  }
 
   // If any error exists in form input related to integer data type - do not save any changes to db
   if (Object.keys(results.errors).length > 0) {
@@ -175,13 +186,14 @@ router.post('/api/updateSettings', function(req, res) {
 
   var data = {id: req.body.product_id, max_temp_alarm: max_temp_alarm, min_temp_alarm: min_temp_alarm,
     max_temp_comfort: max_temp_comfort, min_temp_comfort: min_temp_comfort, product_alias: req.body.product_alias,
-    max_temp_alarm_active: req.body.max_temp_alarm_active, min_temp_alarm_active: req.body.min_temp_alarm_active, max_temp_comfort_active: req.body.max_temp_comfort_active, min_temp_comfort_active: req.body.min_temp_comfort_active};
+    max_temp_alarm_active: req.body.max_temp_alarm_active, min_temp_alarm_active: req.body.min_temp_alarm_active, max_temp_comfort_active: req.body.max_temp_comfort_active, min_temp_comfort_active: req.body.min_temp_comfort_active,
+    entries: entries};
 
   // Note: Saves the last accepted integer input from the form max/min alarm/comf. The input value 900 (900 > max measurable sensor temp) may result in that 90 is being saved to db
   var query = apiClient.query("UPDATE products set max_temp_alarm = $1, min_temp_alarm = $2, max_temp_comfort = $3, min_temp_comfort = $4, product_alias = $5, " +
-      "max_temp_alarm_active = $6, min_temp_alarm_active = $7, max_temp_comfort_active = $8, min_temp_comfort_active = $9 where id = $10",
+      "max_temp_alarm_active = $6, min_temp_alarm_active = $7, max_temp_comfort_active = $8, min_temp_comfort_active = $9, chart_entries = $10 where id = $11",
       [data.max_temp_alarm, data.min_temp_alarm, data.max_temp_comfort, data.min_temp_comfort, data.product_alias,
-        data.max_temp_alarm_active, data.min_temp_alarm_active, data.max_temp_comfort_active, data.min_temp_comfort_active, data.id]);
+        data.max_temp_alarm_active, data.min_temp_alarm_active, data.max_temp_comfort_active, data.min_temp_comfort_active, data.entries, data.id]);
 
   query.on('row', function(row) {
     console.log(row);

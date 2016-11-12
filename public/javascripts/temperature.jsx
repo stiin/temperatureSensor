@@ -101,28 +101,28 @@ function NavbarDisp(props) {
             <Navbar inverse>
                 <Navbar.Header className="navHeader">
                     <Navbar.Brand>
-                        <a onClick={onClickTemperature} href="#">Stiin</a>
+                        <a onClick={onClickTemperature} href="">Tempr</a>
                     </Navbar.Brand>
                     <Navbar.Toggle />
                 </Navbar.Header>
                 <Navbar.Collapse>
                     <Nav>
-                        <NavItem eventKey={1} onClick={onClickTemperature} href="#"><Glyphicon glyph="heart" /> &nbsp;Temperature</NavItem>
-                        <NavItem eventKey={2} onClick={onClickLocation} href="#"><Glyphicon glyph="map-marker" /> &nbsp;Location</NavItem>
+                        <NavItem eventKey={1} onClick={onClickTemperature} href=""><Glyphicon glyph="heart" /> &nbsp;Temperature</NavItem>
+                        <NavItem eventKey={2} onClick={onClickLocation} href=""><Glyphicon glyph="map-marker" /> &nbsp;Location</NavItem>
                         <NavDropdown eventKey={3} title={<span><Glyphicon glyph="stats" />  &nbsp;Charts</span>} id="basic-nav-dropdown">
-                            <MenuItem eventKey={3.1} onClick={onClickTempChart}>Temperature Chart</MenuItem>
-                            <MenuItem eventKey={3.2}>Another action</MenuItem>
+                            <MenuItem eventKey={3.1} onClick={onClickTempChart}>Temperature chart</MenuItem>
+                            <MenuItem eventKey={3.2}>Another chart</MenuItem>
                             <MenuItem eventKey={3.3}>Something else here</MenuItem>
                             <MenuItem divider />
                             <MenuItem eventKey={3.4}>Separated link</MenuItem>
                         </NavDropdown>
-                        <NavItem eventKey={4} href="#"><Glyphicon glyph="tree-conifer" /> &nbsp;Geofences</NavItem>
+                        <NavItem eventKey={4} href=""><Glyphicon glyph="tree-conifer" /> &nbsp;Geofencing</NavItem>
                     </Nav>
                     <Nav pullRight>
-                        <NavItem eventKey={5} href="#"><Glyphicon glyph="question-sign" /> &nbsp;Help & FAQ</NavItem>
+                        <NavItem eventKey={5} href=""><Glyphicon glyph="question-sign" /> &nbsp;Help & FAQ</NavItem>
                         <NavItem eventKey={6} onClick={onClickSettings}><Glyphicon glyph="cog" />  &nbsp;Settings</NavItem>
-                        <NavItem eventKey={7} href="#"><Glyphicon glyph="user" /> &nbsp;My Account</NavItem>
-                        <NavItem eventKey={8} href="#"><Glyphicon glyph="log-out" /> &nbsp;Sign out</NavItem>
+                        <NavItem eventKey={7} href=""><Glyphicon glyph="user" /> &nbsp;My Account</NavItem>
+                        <NavItem eventKey={8} href=""><Glyphicon glyph="log-out" /> &nbsp;Sign out</NavItem>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>
@@ -227,8 +227,8 @@ const formInstance = (
                     <FieldGroup
                         id="formControlsNumberOfChartEntries"
                         type="numberOfChartEntries"
-                        label="Number of logged entries to show on chart (Default: 10)"
-                        placeholder="Enter number of entries"
+                        label="Number of logged entries to show on chart"
+                        placeholder="Enter number of entries (default: 30)"
                     />
                     <HelpButton />
                 </form>

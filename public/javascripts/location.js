@@ -29,5 +29,4 @@ function location() {
 
  // Read location data and put marker with temp data on map
  getCurrentTempGlobal();
-
  }

@@ -43,34 +43,34 @@ function temperatureDisplay() {
     var combinedPromise = $.when(readSettings(product_id));
     combinedPromise.done(function() {
         inputChangeDetection();
-    });
 
+        getCurrentTempGlobal = function() {
 
-    getCurrentTempGlobal = function() {
-        getCurrentTemp(marker, number_of_chart_entries);
-    };
+            console.log("getCurrentTempGlobal");
 
-    let number_of_chart_entries = 10;  // FIXME
-    getCurrentTempGlobal();
-
-
-
-    // Read temperature every 20 sec
-    var counter = 0;
-    setInterval(function(){
+            let number_of_chart_entries = settings.entries;
+            if (!number_of_chart_entries) {
+                number_of_chart_entries = 20;
+            }
+            getCurrentTemp(marker, number_of_chart_entries);
+        };
         getCurrentTempGlobal();
-        counter = counter + 20;
-    }, 20000);
 
-    // Add help image as popup on click on help-button
-    $("[name='my-popover']").popover({
-        content: "<img src='images/helpTemp.png'  id='settingsHelpImage' />",
-        html: true,
-        viewport: {selector: "#show_pageline"}
+        // Read temperature every 20 sec
+        var counter = 0;
+        setInterval(function () {
+            getCurrentTempGlobal();
+            counter = counter + 20;
+        }, 20000);
+
+        // Add help image as popup on click on help-button
+        $("[name='my-popover']").popover({
+            content: "<img src='images/helpTemp.png'  id='settingsHelpImage' />",
+            html: true,
+            viewport: {selector: "#show_pageline"}
+        });
     });
-
 }
-
 
 // FORM INPUT FIELD - save input automatically
 // Input: "#formControlField"
@@ -96,6 +96,7 @@ function inputChangeDetection() {
     saveInputOnKeyup("#formControlsMinAlarm");
     saveInputOnKeyup("#formControlsMaxComfort");
     saveInputOnKeyup("#formControlsMinComfort");
+    saveInputOnKeyup("#formControlsNumberOfChartEntries");
 
     // Settings switch buttons - save state automatically
     switchbuttonAutoSaveState('#max_temp_alarm');
@@ -134,17 +135,19 @@ function readSettings(product_id) {
         if (msg) {
             console.log("Read Successful");
 
-            // Reads and sets temperature setting limits
+            // Read settings and write values into form
             settings.product_alias = msg[0].product_alias;
             settings.max_temp_alarm = msg[0].max_temp_alarm;
             settings.min_temp_alarm = msg[0].min_temp_alarm;
             settings.max_temp_comfort = msg[0].max_temp_comfort;
             settings.min_temp_comfort = msg[0].min_temp_comfort;
+            settings.entries = msg[0].chart_entries;
             $("#formControlsProductAlias").val(settings.product_alias);
             $("#formControlsMaxAlarm").val(settings.max_temp_alarm);
             $("#formControlsMinAlarm").val(settings.min_temp_alarm);
             $("#formControlsMaxComfort").val(settings.max_temp_comfort);
             $("#formControlsMinComfort").val(settings.min_temp_comfort);
+            $("#formControlsNumberOfChartEntries").val(settings.entries);
 
             // SWITCH BUTTONS
             settings.max_temp_alarm_switch = msg[0].max_temp_alarm_active;
@@ -178,6 +181,11 @@ function switchButtonCheckIfActive(id) {
     return $(id).is(':checked');
 }
 
+function removeErrors(formControlID) {
+    $(formControlID + "Group").removeClass("has-error");
+    $(formControlID + "Feedback").html("");
+}
+
 // UPDATE SETTINGS IN DB
 function saveSettings() {
 
@@ -188,6 +196,7 @@ function saveSettings() {
     var min_temp_alarm = $("#formControlsMinAlarm").val();
     var max_temp_comfort = $("#formControlsMaxComfort").val();
     var min_temp_comfort = $("#formControlsMinComfort").val();
+    var entries = $("#formControlsNumberOfChartEntries").val();
 
     // STORE TEMPERATURE SETTINGS SWITCH BUTTONS' STATE
     var max_temp_alarm_active = switchButtonCheckIfActive("#max_temp_alarm");
@@ -195,7 +204,13 @@ function saveSettings() {
     var max_temp_comfort_active = switchButtonCheckIfActive("#max_temp_comfort");
     var min_temp_comfort_active = switchButtonCheckIfActive("#min_temp_comfort");
 
-    $("#formControlsMaxAlarmGroup").removeClass("has-error");
+    removeErrors("#formControlsMaxAlarm");
+    removeErrors("#formControlsMinAlarm");
+    removeErrors("#formControlsMaxComfort");
+    removeErrors("#formControlsMinComfort");
+    removeErrors("#formControlsNumberOfChartEntries");
+
+/*    $("#formControlsMaxAlarmGroup").removeClass("has-error");
     $("#formControlsMaxAlarmFeedback").html("");
     $("#formControlsMinAlarmGroup").removeClass("has-error");
     $("#formControlsMinAlarmFeedback").html("");
@@ -203,12 +218,14 @@ function saveSettings() {
     $("#formControlsMaxComfortFeedback").html("");
     $("#formControlsMinComfortGroup").removeClass("has-error");
     $("#formControlsMinComfortFeedback").html("");
+    $("#formControlsNumberOfChartEntriesGroup").removeClass("has-error");
+    $("#formControlsNumberOfChartEntriesFeedback").html("");*/
 
     var request = $.ajax({
         url: "/api/updateSettings",
         type: "POST",
         data: {product_id: product_id, product_alias: product_alias, max_temp_alarm: max_temp_alarm, min_temp_alarm: min_temp_alarm, max_temp_comfort: max_temp_comfort, min_temp_comfort: min_temp_comfort,
-            max_temp_alarm_active: max_temp_alarm_active, min_temp_alarm_active: min_temp_alarm_active, max_temp_comfort_active: max_temp_comfort_active, min_temp_comfort_active: min_temp_comfort_active},
+            max_temp_alarm_active: max_temp_alarm_active, min_temp_alarm_active: min_temp_alarm_active, max_temp_comfort_active: max_temp_comfort_active, min_temp_comfort_active: min_temp_comfort_active, entries: entries},
         cache: false
     });
 
@@ -218,10 +235,11 @@ function saveSettings() {
             console.log("Update Successful");
 
             settings.product_alias = product_alias;
-            settings.max_temp_alarm = max_temp_alarm;
-            settings.min_temp_alarm = min_temp_alarm;
-            settings.max_temp_comfort = max_temp_comfort;
-            settings.min_temp_comfort = min_temp_comfort;
+            settings.max_temp_alarm = parseInt(max_temp_alarm);
+            settings.min_temp_alarm = parseInt(min_temp_alarm);
+            settings.max_temp_comfort = parseInt(max_temp_comfort);
+            settings.min_temp_comfort = parseInt(min_temp_comfort);
+            settings.entries = parseInt(entries);
 
         }  else {
             console.log('Update not Successful');
@@ -241,6 +259,9 @@ function saveSettings() {
                 }
                 if (key === "min_temp_comfort") {
                     formControlField = "#formControlsMinComfort";
+                }
+                if (key === "entries") {
+                    formControlField = "#formControlsNumberOfChartEntries";
                 }
                 $(formControlField + "Group").addClass("has-error");
                 $(formControlField + "Feedback").html(" " + msg.errors[key]);
@@ -330,12 +351,14 @@ function getCurrentTemp(marker, number_of_entries) {
                 var lat = tempDataSerie["lat"][tempDataSerie["lat"].length - 1];
                 var lon = tempDataSerie["lon"][tempDataSerie["lon"].length - 1];
 
+/*
                 console.log("*****");
                 console.log(localTimestampString);
                 console.log(currentTemp);
                 console.log(lat);
                 console.log(lon);
                 console.log("*****");
+*/
 
                 if (myLineChart) {
                     myLineChart.data.datasets[0].data = tempDataSerie["temp"];
@@ -467,7 +490,6 @@ function getCurrentTemp(marker, number_of_entries) {
         });
 }
 
-
 function show_page(page_name) {
 
     // Make sure the popup closes when choosing a tab in navbar
@@ -479,24 +501,17 @@ function show_page(page_name) {
     $("#settingsPageOutline").hide();
     $("#mapID").hide();
     $("#chart").hide();
-/*
-    $('html').removeClass('location');
-*/
 
     if (page_name == "settings") {
         $("#settingsPageOutline").show();
-        dispSettings();
     } else if (page_name === "temperature") {
         $("#temperatureDisplay").show();
         temperatureDisplay();
     } else if (page_name === "location") {
         console.log("in show_page location");
-
         $("#mapID").show();
         location();
-/*
-        $('html').addClass('location');
-*/
+
     }  else if (page_name === "tempChart") {
         $("#tempChart").show();
         $("#chart").show();
@@ -504,12 +519,10 @@ function show_page(page_name) {
     }
 }
 
-function dispSettings() {
-    console.log("in settings");
-}
-
 function tempChart() {
     console.log("in tempChart");
+
+    getCurrentTempGlobal();
 
     // If chart already initiated - do nothing
     if (myLineChart) {
@@ -563,10 +576,5 @@ function tempChart() {
         options: options
     });
 
-    console.log(myLineChart.data.datasets[0].data);
-    console.log(myLineChart.data.labels);
-
-
     myLineChart.update();
-
 }
