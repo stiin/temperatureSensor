@@ -29,7 +29,6 @@ $(document).ready(function() {
     } else {
         $('html').addClass('noMobile');
     }
-
     show_page("temperature");
 });
 
@@ -43,11 +42,9 @@ function temperatureDisplay() {
     var combinedPromise = $.when(readSettings(product_id));
     combinedPromise.done(function() {
         inputChangeDetection();
-
         getCurrentTempGlobal = function() {
 
-            console.log("getCurrentTempGlobal");
-
+            // Default number of entries to show on temperature chart: 20
             let number_of_chart_entries = settings.entries;
             if (!number_of_chart_entries) {
                 number_of_chart_entries = 20;
@@ -62,13 +59,13 @@ function temperatureDisplay() {
             getCurrentTempGlobal();
             counter = counter + 20;
         }, 20000);
+    });
 
-        // Add help image as popup on click on help-button
-        $("[name='my-popover']").popover({
-            content: "<img src='images/helpTemp.png'  id='settingsHelpImage' />",
-            html: true,
-            viewport: {selector: "#show_pageline"}
-        });
+    // Add help image as popup on click on help-button
+    $("[name='my-popover']").popover({
+        content: "<img src='images/helpTemp.png'  id='settingsHelpImage' />",
+        html: true,
+        viewport: {selector: "#settingsOutline"}
     });
 }
 
@@ -210,17 +207,6 @@ function saveSettings() {
     removeErrors("#formControlsMinComfort");
     removeErrors("#formControlsNumberOfChartEntries");
 
-/*    $("#formControlsMaxAlarmGroup").removeClass("has-error");
-    $("#formControlsMaxAlarmFeedback").html("");
-    $("#formControlsMinAlarmGroup").removeClass("has-error");
-    $("#formControlsMinAlarmFeedback").html("");
-    $("#formControlsMaxComfortGroup").removeClass("has-error");
-    $("#formControlsMaxComfortFeedback").html("");
-    $("#formControlsMinComfortGroup").removeClass("has-error");
-    $("#formControlsMinComfortFeedback").html("");
-    $("#formControlsNumberOfChartEntriesGroup").removeClass("has-error");
-    $("#formControlsNumberOfChartEntriesFeedback").html("");*/
-
     var request = $.ajax({
         url: "/api/updateSettings",
         type: "POST",
@@ -341,24 +327,13 @@ function getCurrentTemp(marker, number_of_entries) {
                     tempDataSerie["lat"].push(lat_tmp);
                     tempDataSerie["lon"].push(lon_tmp);
                 }
-/*
-                currentTemp = 30;
-*/
+
                 // Retrieves the last temperature data entry
                 var currentTemp = tempDataSerie["temp"][tempDataSerie["temp"].length - 1];
                 var localTimestamp = tempDataSerie["timestamp_raw"][tempDataSerie["timestamp"].length - 1];
                 var localTimestampString = tempDataSerie["timestamp"][tempDataSerie["timestamp"].length - 1];
                 var lat = tempDataSerie["lat"][tempDataSerie["lat"].length - 1];
                 var lon = tempDataSerie["lon"][tempDataSerie["lon"].length - 1];
-
-/*
-                console.log("*****");
-                console.log(localTimestampString);
-                console.log(currentTemp);
-                console.log(lat);
-                console.log(lon);
-                console.log("*****");
-*/
 
                 if (myLineChart) {
                     myLineChart.data.datasets[0].data = tempDataSerie["temp"];
@@ -490,35 +465,6 @@ function getCurrentTemp(marker, number_of_entries) {
         });
 }
 
-function show_page(page_name) {
-
-    // Make sure the popup closes when choosing a tab in navbar
-    if (map) {
-        map.closePopup();
-    }
-
-    $("#temperatureDisplay").hide();
-    $("#settingsPageOutline").hide();
-    $("#mapID").hide();
-    $("#chart").hide();
-
-    if (page_name == "settings") {
-        $("#settingsPageOutline").show();
-    } else if (page_name === "temperature") {
-        $("#temperatureDisplay").show();
-        temperatureDisplay();
-    } else if (page_name === "location") {
-        console.log("in show_page location");
-        $("#mapID").show();
-        location();
-
-    }  else if (page_name === "tempChart") {
-        $("#tempChart").show();
-        $("#chart").show();
-        tempChart();
-    }
-}
-
 function tempChart() {
     console.log("in tempChart");
 
@@ -575,6 +521,33 @@ function tempChart() {
         data: data,
         options: options
     });
+}
 
-    myLineChart.update();
+function show_page(page_name) {
+
+    // Make sure the popup closes when choosing a tab in navbar
+    if (map) {
+        map.closePopup();
+    }
+
+    $("#temperatureDisplay").hide();
+    $("#settingsPageOutline").hide();
+    $("#mapID").hide();
+    $("#chart").hide();
+
+    if (page_name == "settings") {
+        $("#settingsPageOutline").show();
+    } else if (page_name === "temperature") {
+        $("#temperatureDisplay").show();
+        temperatureDisplay();
+    } else if (page_name === "location") {
+        console.log("in show_page location");
+        $("#mapID").show();
+        showLocation();
+
+    }  else if (page_name === "tempChart") {
+        $("#tempChart").show();
+        $("#chart").show();
+        tempChart();
+    }
 }

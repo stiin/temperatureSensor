@@ -3,6 +3,7 @@ var credentials = require('../dbcredentials/credentials.js');
 var apiClient = new pg.Client(credentials);
 var express = require('express');
 var router = express.Router();
+var thingspeakCredentials = require('../public/javascripts/passwords.js');
 
 apiClient.on('notice', function(msg) {
   console.log("notice: %j", msg);
@@ -28,9 +29,9 @@ var ThingSpeakClient = require('thingspeakclient');
 var client = new ThingSpeakClient();
 
 // Credentials
-var yourWriteKey = 'default';
-var yourReadKey = 'default';
-var channelID = 0;
+var yourWriteKey = thingspeakCredentials['yourWriteKey'];
+var yourReadKey = thingspeakCredentials['yourReadKey'];
+var channelID = thingspeakCredentials['channelID'];
 
 client.attachChannel(channelID, { writeKey:yourWriteKey, readKey: yourReadKey}, callBackThingspeak);
 
@@ -39,12 +40,9 @@ router.post('/api/getChannelFeeds', function(req, res) {
   var results = [];
   client.getChannelFeeds(channelID, {results: req.body.number_of_entries}, function(err, resp) {
     if (!err && resp) {
-      console.log("*****************");
       console.log('getFieldFeed successful. Entry number was: ' + resp);
-      console.log(resp);
       results.push(resp);
-    }
-    else {
+    } else {
       console.log(err);
     }
 
@@ -201,9 +199,7 @@ router.post('/api/updateSettings', function(req, res) {
     console.log("There was an error with the update settings query: " + error);
     res.json(results);
   });
-
 });
-
 
 // Read settings from db
 router.post('/api/readSettings', function(req, res) {

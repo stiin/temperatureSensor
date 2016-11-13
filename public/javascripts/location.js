@@ -3,7 +3,7 @@
  */
 
 
-function location() {
+function showLocation() {
 
  if (map) {
   return;

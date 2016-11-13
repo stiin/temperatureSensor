@@ -6,30 +6,26 @@
         <title>Temperature Sensor</title>
 
         <!-- JQuery -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="/javascripts/jquery.min.js"></script>
 
         <!-- React.js + Babel -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.2/react-dom.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.17.0/babel.js"></script>
+        <script src="/javascripts/react.min.js"></script>
+        <script src="/javascripts/react-dom.js"></script>
+        <script src="/javascripts/babel.min.js"></script>
 
         <!-- Bootstrap -->
         <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <!-- Optional theme -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
         <!-- Latest compiled and minified JavaScript -->
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
+        <script src="/javascripts/bootstrap.min.js"></script>
         <!-- React-Bootstrap-->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-bootstrap/0.30.5/react-bootstrap.js"></script>
+        <script src="/javascripts/react-bootstrap.min.js"></script>
 
         <!-- Date formatting -->
         <script src="/javascripts/date.format.js"></script>
-        <script src="/javascripts/moment-with-locales.js"></script>
 
         <!-- Mobile Detect -->
-        <script src="/javascripts/mobile-detect.js"></script>
+        <script src="/javascripts/mobile-detect.min.js"></script>
 
         <!-- Style -->
         <link rel="stylesheet" href="/stylesheets/style.css">
@@ -46,10 +42,8 @@
         <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 
         <!-- Chart.js and moment.js -->
-        <script src="/javascripts/moment.js"></script>
+        <script src="/javascripts/moment.min.js"></script>
         <script src="/javascripts/Chart.min.js"></script>
-
-        <script src="/javascripts/location.js"></script>
 
     </head>
     <body>
@@ -57,9 +51,7 @@
     <div id="navigation"></div>
     <div id="temperatureDisplay"></div>
 
-<!--
-    FIXME create class hide (screen readers)
--->
+    <!-- FIXME create class hide (screen readers) -->
     <div id="settingsPageOutline" style="display: none;"></div>
 
     <div id="mapID"></div>
@@ -67,7 +59,6 @@
     <div id="chart">
         <canvas id="tempChart" width="75vw" height="60vh" style="display: none;"></canvas>
     </div>
-
 
     <script type="text/babel" src="javascripts/location.js"></script>
     <script type="text/babel" src="javascripts/temperature.js"></script>

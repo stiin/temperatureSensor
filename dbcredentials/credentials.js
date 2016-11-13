@@ -1,10 +1,13 @@
 var pg = require('pg');
+var dbCredentials = require('../public/javascripts/passwords.js');
 
-var host = 'default';
-var port = 'default';
-var dbName = 'default';
+var host = dbCredentials['host'];
+var port = dbCredentials['port'];
+var dbName = dbCredentials['dbName'];
+var username = dbCredentials['dbUsername'];
+var pass = dbCredentials['dbPassword'];
 
-var connectionString = 'postgres://default:default@' + host + ':' + port + '/' + dbName;
+var connectionString = 'postgres://' + username + ':' + pass + '@' + host + ':' + port + '/' + dbName;
 
 // Export the connection string for usage by the API
 module.exports = connectionString;

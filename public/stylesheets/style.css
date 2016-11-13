@@ -159,19 +159,11 @@ hr {
   letter-spacing: 2px;
   color: #404040;
   font-size: 16px;
-/*  display: inline-block;
-  position: absolute;
-  top: 20px;
-  left: 20px;*/
 }
 
 #settingsInfoDetails {
   letter-spacing: 2px;
   color: #404040;
-  /*  display: inline-block;
-    position: absolute;
-    top: 20px;
-    left: 20px;*/
 }
 
 @media (min-width: 700px) {
@@ -219,15 +211,6 @@ hr {
 .popover{
   max-width: 100%; !important
 }
-
-/*html .location   {
-  overflow: hidden;
-}
-
-body .location {
-  overflow-y:hidden;
-
-}*/
 
 #mapID {
   height: calc(100% - 50px);

@@ -93,8 +93,6 @@ const onClickTempChart = function(event){
     show_page("tempChart");
 };
 
-
-
 function NavbarDisp(props) {
     return(
         <div>
@@ -130,7 +128,6 @@ function NavbarDisp(props) {
     );
 }
 
-
 //////////////////////////////////////
 // SETTINGS
 
@@ -139,7 +136,7 @@ function FieldGroup({ id, label, help, ...props}) {
         <FormGroup controlId={id}>
             <ControlLabel>{label}</ControlLabel>
             <FormControl {...props}/>
-      {help && <HelpBlock>{help}</HelpBlock>}
+           {help && <HelpBlock>{help}</HelpBlock>}
         </FormGroup>
     );
 }
@@ -177,7 +174,6 @@ function MyTempSettingsForm(props) {
 }
 
 function MyChartSettingForm(props) {
-
     return (
         <div>
             <div className="form-group" id={props.id + "Group"}>
@@ -185,7 +181,7 @@ function MyChartSettingForm(props) {
                 <span id={props.id + "Feedback"}></span>
 
                 <div className="row">
-                    <div className="col-lg-10 col-md-10 col-sm-10 col-xs-7">
+                    <div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <input type={props.type} className="form-control" id={props.id} placeholder={props.placeholder} />
                     </div>
                 </div>
@@ -197,7 +193,7 @@ function MyChartSettingForm(props) {
 function HelpButton() {
     return (
         <div style={{overflow:"auto"}}>
-            <a tabIndex="0" className="btn btn-md btn-default pull-right" name="my-popover" data-trigger="focus" rel="popover" role="button"  data-placement="top"
+            <a tabIndex="0" className="btn btn-md btn-default pull-right" name="my-popover" data-trigger="focus" rel="popover" role="button" data-placement="top"
                 title="Maximum measurable temperature: 125 °C. Minimum measurable temperature: -55 °C.">Help</a>
         </div>
     );
@@ -241,7 +237,7 @@ const formInstance = (
                     <br />
                     <span id="settingsInfo">Chart settings</span>
                     <hr />
-                    <MyChartSettingForm id={"formControlsNumberOfChartEntries"} label={"Number of logged entries to show on chart (default: 30)"} type={"numberOfChartEntries"} placeholder={"Enter number of entries"} />
+                    <MyChartSettingForm id={"formControlsNumberOfChartEntries"} label={"Number of logged entries to show on chart"} type={"numberOfChartEntries"} placeholder={"Enter number of entries"} />
                     <HelpButton />
                 </form>
             </div>
