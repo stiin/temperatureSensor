@@ -420,8 +420,8 @@ function getCurrentTemp(marker, number_of_entries) {
                 console.log("Time from last reading: " + timeFromLastReadingSeconds + " s");
 */
 
-                timeFromLastReadingDays = 0;
-                timeFromLastReadingMinutes = 2;
+/*                timeFromLastReadingDays = 0;
+                timeFromLastReadingMinutes = 2;*/
 
                 if (timeFromLastReadingDays > 0 || timeFromLastReadingMinutes >= 3) {
                     $(".dispTimeData").css("background-color", "#EB4549"); //RED

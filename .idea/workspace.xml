@@ -2,17 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="84eea30d-3757-494d-98d5-da9cdb5a766c" name="Default" comment="">
-      <change type="DELETED" beforePath="C:\TemperatureSensor\temperatureSensor\public\javascripts\mobile-detect.js" afterPath="" />
-      <change type="DELETED" beforePath="C:\TemperatureSensor\temperatureSensor\public\javascripts\moment-with-locales.js" afterPath="" />
-      <change type="DELETED" beforePath="C:\TemperatureSensor\temperatureSensor\public\javascripts\moment.js" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dbcredentials/credentials.js" afterPath="$PROJECT_DIR$/dbcredentials/credentials.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/index.js" afterPath="$PROJECT_DIR$/routes/index.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/javascripts/location.js" afterPath="$PROJECT_DIR$/public/javascripts/location.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/stylesheets/style.css" afterPath="$PROJECT_DIR$/public/stylesheets/style.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/temperature.html" afterPath="$PROJECT_DIR$/views/temperature.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/javascripts/temperature.js" afterPath="$PROJECT_DIR$/public/javascripts/temperature.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/javascripts/temperature.jsx" afterPath="$PROJECT_DIR$/public/javascripts/temperature.jsx" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="temperatureSensor.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -49,8 +39,8 @@
       <file leaf-file-name="temperature.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/javascripts/temperature.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.33333334" vertical-offset="854" max-vertical-offset="9486">
-              <caret line="67" column="46" selection-start-line="67" selection-start-column="46" selection-end-line="67" selection-end-column="46" />
+            <state vertical-scroll-proportion="0.6315789" vertical-offset="6583" max-vertical-offset="9486">
+              <caret line="419" column="27" selection-start-line="418" selection-start-column="0" selection-end-line="421" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -828,8 +818,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/public/javascripts/temperature.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33333334" vertical-offset="854" max-vertical-offset="9486">
-          <caret line="67" column="46" selection-start-line="67" selection-start-column="46" selection-end-line="67" selection-end-column="46" />
+        <state vertical-scroll-proportion="0.6315789" vertical-offset="6583" max-vertical-offset="9486">
+          <caret line="419" column="27" selection-start-line="418" selection-start-column="0" selection-end-line="421" selection-end-column="0" />
           <folding />
         </state>
       </provider>
